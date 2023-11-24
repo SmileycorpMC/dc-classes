@@ -1,0 +1,19 @@
+{
+	"index": 3,
+	"health": 14,
+	"stamina": 32,
+	"starting_skills": [
+		"epicfight:step",
+		"wom:dodge_master",
+		"epicfight:guard"
+	],
+	"items": [
+		{
+			"id": "epicfight:stone_tachi"
+		}
+		{
+			"id": "minecraft:bread",
+			"count": 6
+		}
+	]
+}
