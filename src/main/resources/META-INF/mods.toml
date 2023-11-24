@@ -3,7 +3,7 @@ loaderVersion="[34,)"
 license="GNU LESSER GENERAL PUBLIC LICENSE Version 2.1"
 
 [[mods]]
-modId="dawncraftclasses"
+modId="dcclasses"
 version="1.0.0"
 displayName="DawnCraft Classes"
 displayURL=""

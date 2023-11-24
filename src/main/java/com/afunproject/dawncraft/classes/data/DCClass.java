@@ -9,12 +9,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.LazyOptional;
-import tictim.paraglider.ParagliderMod;
-import tictim.paraglider.capabilities.ServerPlayerMovement;
 import tictim.paraglider.contents.Contents;
-import tictim.paraglider.utils.ParagliderUtils;
 import yesman.epicfight.api.data.reloader.SkillManager;
-import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
@@ -38,7 +34,7 @@ public class DCClass {
         this.name = name;
         index = obj.has("index") ? obj.get("index").getAsInt() : 99;
         health = obj.has("health") ? obj.get("health").getAsFloat() : 20;
-        stamina = obj.has("stamina") ? obj.get("stamina").getAsInt() : 20;
+        stamina = obj.has("stamina") ? obj.get("stamina").getAsInt() : 28;
         if (obj.has("starting_skills")) for (JsonElement element : obj.getAsJsonArray("starting_skills"))
             skills.add(SkillManager.getSkill(element.getAsString()));
         if (obj.has("items")) for (JsonElement element : obj.getAsJsonArray("items")) {
@@ -60,7 +56,7 @@ public class DCClass {
         player.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(HEALTH_MOD,
                 "class_health", health - 20, AttributeModifier.Operation.ADDITION));
         player.getAttribute(Contents.MAX_STAMINA.get()).addPermanentModifier(new AttributeModifier(STAMINA_MOD,
-                "class_stamina", health - 20, AttributeModifier.Operation.ADDITION));
+                "class_stamina", health - 28, AttributeModifier.Operation.ADDITION));
         LazyOptional<CapabilitySkill> skillcap = player.getCapability(EpicFightCapabilities.CAPABILITY_SKILL);
         if (skillcap.isPresent()) {
             CapabilitySkill skills = skillcap.orElse(null);

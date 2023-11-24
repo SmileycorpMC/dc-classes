@@ -1,12 +1,10 @@
 package com.afunproject.dawncraft.classes;
 
 import com.afunproject.dawncraft.classes.data.DCClass;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public class ClassHandler {

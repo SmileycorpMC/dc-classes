@@ -4,7 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class Constants {
 
-    public static final String MODID = "dawncraftclasses";
+    public static final String MODID = "dcclasses";
 
     public static ResourceLocation loc(String path) {
         return new ResourceLocation(MODID, path);
