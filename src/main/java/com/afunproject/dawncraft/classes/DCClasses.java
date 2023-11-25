@@ -13,6 +13,7 @@ public class DCClasses {
     public static Capability<PickedClass> PICKED_CLASS = CapabilityManager.get(new CapabilityToken<>(){});
 
     public DCClasses() {
+        ClassesLogger.clearLog();
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         NetworkHandler.initPackets();
     }

@@ -1,6 +1,7 @@
 package com.afunproject.dawncraft.classes.data;
 
 import com.afunproject.dawncraft.classes.ClassHandler;
+import com.afunproject.dawncraft.classes.ClassesLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -29,8 +30,7 @@ public class DCClassLoader extends SimpleJsonResourceReloadListener {
             try {
                ClassHandler.addClass(new DCClass(entry.getKey(), (JsonObject) entry.getValue()));
             } catch (Exception e) {
-                System.err.println(e.getMessage());
-                e.printStackTrace();
+                ClassesLogger.logError("Error adding class " + entry.getValue().toString(), e);
             }
         }
     }

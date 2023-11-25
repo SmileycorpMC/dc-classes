@@ -16,8 +16,11 @@
 		},
 		{
 			"id": "nyfsquiver:basic_quiver",
-			"slot": "curios:quiver",
-			"nbt": "{inventory: {inventory: {stack5: {id: \"minecraft:air\", Count: 1}, stack4: {id: \"minecraft:air\", Count: 1}, stack7: {id: \"minecraft:air\", Count: 1}, stack6: {id: \"minecraft:air\", Count: 1}, stack1: {id: \"minecraft:air\", Count: 1}, stack0: {id: \"minecraft:arrow\", Count: 64}, columns: 9, stacks: 9, stack3: {id: \"minecraft:air\", Count: 1}, stack2: {id: \"minecraft:air\", Count: 1}, rows: 1, stack8: {id: \"minecraft:air\", Count: 1}}, currentslot: 0}}"
+			"slot": "curios:quiver"
+		},
+		{
+			"id": "minecraft:arrow",
+			"count": 64
 		},
 		{
 			"id": "minecraft:bread",

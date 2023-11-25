@@ -11,7 +11,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkDirection;
@@ -48,13 +48,14 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public void joinedWorld(EntityJoinWorldEvent event) {
+    public void tick(LivingEvent.LivingUpdateEvent event) {
+        if (event.getEntity() == null) return;
         Entity player = event.getEntity();
         if (!(player instanceof ServerPlayer)) return;
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
         if (!optional.isPresent()) return;
         PickedClass cap = optional.orElseGet(null);
-        if (!cap.hasEffect()) cap.applyEffect((Player) player);
+        if (cap.hasPicked() &! cap.hasEffect()) cap.applyEffect((ServerPlayer) player);
     }
 
     @SubscribeEvent

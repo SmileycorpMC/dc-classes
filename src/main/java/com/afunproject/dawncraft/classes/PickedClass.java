@@ -4,6 +4,7 @@ import com.afunproject.dawncraft.classes.data.DCClass;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
@@ -12,13 +13,14 @@ import net.minecraftforge.common.util.LazyOptional;
 public interface PickedClass {
 
     DCClass getDCClass();
+
     void setDCClass(DCClass clazz);
 
     boolean hasPicked();
 
     boolean hasEffect();
 
-    void applyEffect(Player player);
+    void applyEffect(ServerPlayer player);
 
     CompoundTag save();
 
@@ -50,7 +52,7 @@ public interface PickedClass {
         }
 
         @Override
-        public void applyEffect(Player player) {
+        public void applyEffect(ServerPlayer player) {
             clazz.apply(player);
             hasEffect = true;
         }

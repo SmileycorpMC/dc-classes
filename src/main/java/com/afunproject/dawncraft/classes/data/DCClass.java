@@ -1,19 +1,22 @@
 package com.afunproject.dawncraft.classes.data;
 
+import com.afunproject.dawncraft.classes.ClassesLogger;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.LazyOptional;
 import tictim.paraglider.contents.Contents;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
 import java.util.List;
@@ -43,10 +46,17 @@ public class DCClass {
             try {
                 items.add(new ItemEntry(element.getAsJsonObject()));
             } catch (Exception e) {
-                System.err.println(e.getMessage());
-                e.printStackTrace();
+                ClassesLogger.logError("Error adding item " + element.toString(), e);
             }
         }
+    }
+
+    public float getHealthMult() {
+        return health * 0.5f;
+    }
+
+    public float getStaminaMult() {
+        return ((float)stamina) / 28f;
     }
 
     public ResourceLocation getRegistryName() {
@@ -62,17 +72,30 @@ public class DCClass {
         return "class." + name.toString().replace(":", ".");
     }
 
-    public void apply(Player player) {
+    public void apply(ServerPlayer player) {
+        ClassesLogger.logInfo("Applying " + this + " modififers to player " + player.getDisplayName().getString());
         player.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(HEALTH_MOD,
                 "class_health", health - 20, AttributeModifier.Operation.ADDITION));
+        player.setHealth(player.getMaxHealth());
         player.getAttribute(Contents.MAX_STAMINA.get()).addPermanentModifier(new AttributeModifier(STAMINA_MOD,
                 "class_stamina", health - 28, AttributeModifier.Operation.ADDITION));
-        PlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+        ServerPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, ServerPlayerPatch.class);
         if (patch != null) {
             CapabilitySkill skills = patch.getSkillCapability();
-            for (String skill : this.skills) skills.addLearnedSkill(SkillManager.getSkill(skill));
-        }
+            for (String name : this.skills) {
+                ClassesLogger.logInfo("Applying skill " + name + " to player " + player.getDisplayName().getString());
+                Skill skill = SkillManager.getSkill(name);
+                if (skill == null) {
+                    ClassesLogger.logError("Skill " + name + " is null", new NullPointerException());
+                    continue;
+                }
+                patch.getSkill(skills.getSkillContainersFor(skill.getCategory())
+                        .iterator().next().getSlot().universalOrdinal()).setSkill(skill);
+                if (skill.getCategory().learnable()) skills.addLearnedSkill(skill);
+            }
+        } else ClassesLogger.logInfo("Patch is null");
         for (ItemEntry item : items) item.apply(player);
+        ClassesLogger.logInfo("Set player " + player.getDisplayName().getString() + " to class " + this);
     }
 
     public int getIndex() {
@@ -93,8 +116,8 @@ public class DCClass {
         obj.addProperty("health", health);
         obj.addProperty("stamina", stamina);
         JsonArray skills = new JsonArray();
-        for (String skill : this.skills) skills.add(skill);
-        obj.add("skills", skills);
+        for (String skill : this.skills) skills.add(new JsonPrimitive(skill));
+        obj.add("starting_skills", skills);
         JsonArray items = new JsonArray();
         for (ItemEntry item : this.items) items.add(item.serialize());
         obj.add("items", items);

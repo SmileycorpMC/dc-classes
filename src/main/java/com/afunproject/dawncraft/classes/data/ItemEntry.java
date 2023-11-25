@@ -1,6 +1,7 @@
 package com.afunproject.dawncraft.classes.data;
 
-import com.afunproject.dawncraft.classes.CuriosSupport;
+import com.afunproject.dawncraft.classes.ClassesLogger;
+import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -23,8 +24,9 @@ public class ItemEntry {
     }
 
     public void apply(Player player) {
+        ClassesLogger.logInfo("set " + stack + " to slot " + slot);
         if (slot.contains("curios:") && ModList.get().isLoaded("curios"))
-            CuriosSupport.addItem(player, slot.replace("curios:", ""), stack.copy());
+            CuriosIntegration.addItem(player, slot.replace("curios:", ""), stack.copy());
         else {
             EquipmentSlot slot;
             try {
@@ -44,7 +46,7 @@ public class ItemEntry {
         obj.addProperty("count", stack.getCount());
         if (stack.hasTag()) obj.addProperty("nbt", stack.getTag().toString());
         if (slot != null) obj.addProperty("slot", slot);
-        return new JsonObject();
+        return obj;
     }
 
 }

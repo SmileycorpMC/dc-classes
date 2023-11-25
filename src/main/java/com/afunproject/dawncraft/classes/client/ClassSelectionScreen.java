@@ -1,25 +1,43 @@
 package com.afunproject.dawncraft.classes.client;
 
-import com.afunproject.dawncraft.classes.ClassHandler;
-import com.afunproject.dawncraft.classes.CuriosSupport;
+import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
 import com.afunproject.dawncraft.classes.data.DCClass;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.PickClassMessage;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.util.ByteProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.RemotePlayer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkDirection;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.gameasset.EpicFightSkills;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.channels.GatheringByteChannel;
+import java.nio.channels.ScatteringByteChannel;
+import java.nio.charset.Charset;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,11 +48,12 @@ public class ClassSelectionScreen extends Screen {
     private final List<DCClass> classes;
     private final RemotePlayer player;
     private final List<Button> buttons = Lists.newArrayList();
+    private int i;
 
-    public ClassSelectionScreen() {
+    public ClassSelectionScreen(List<DCClass> cache) {
         super(new TranslatableComponent("title.dcclasses.screen"));
         Minecraft minecraft = Minecraft.getInstance();
-        classes = ClassHandler.getClasses().stream().sorted(Comparator.comparingInt(DCClass::getIndex)).collect(Collectors.toList());
+        classes = cache.stream().sorted(Comparator.comparingInt(DCClass::getIndex)).collect(Collectors.toList());
         player = new RemotePlayer(minecraft.level, minecraft.player.getGameProfile());
         reloadEquipment();
         buttons.add(new Button(width/2 + 150, height / 2 + 50, 20, 20, new TextComponent("<"), b -> switchPage(page - 1)));
@@ -56,7 +75,11 @@ public class ClassSelectionScreen extends Screen {
         drawCenteredString(poseStack, Minecraft.getInstance().font,  new TranslatableComponent(clazz.getTranslationKey()), width/2, height/2 - 75, 0x9E0CD2);
         int entityX = width/2;
         int entityY = height/2 + 50;
-        InventoryScreen.renderEntityInInventory(entityX, entityY, 45, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
+        if (i++ % 40 == 0) {
+            LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
+            EpicFightSkills.BASIC_ATTACK.executeOnClient(patch, new FriendlyByteBuf(Unpooled.buffer()));
+        }
+        InventoryScreen.renderEntityInInventory(entityX, entityY, 40, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
     }
 
     @Override
@@ -66,7 +89,7 @@ public class ClassSelectionScreen extends Screen {
     }
 
     private void switchPage(int page) {
-        this.page = page % classes.size();
+        this.page = Math.floorMod(page, classes.size());
         reloadEquipment();
     }
 
@@ -75,7 +98,7 @@ public class ClassSelectionScreen extends Screen {
         if (clazz == null) return;
         for (EquipmentSlot slot : EquipmentSlot.values()) player.setItemSlot(slot, ItemStack.EMPTY);
         player.getInventory().clearContent();
-        if (ModList.get().isLoaded("curios")) CuriosSupport.clear(player);
+        if (ModList.get().isLoaded("curios")) CuriosIntegration.clear(player);
         clazz.setVisualEquipment(player);
     }
 
@@ -83,6 +106,12 @@ public class ClassSelectionScreen extends Screen {
         NetworkHandler.NETWORK_INSTANCE.sendTo(new PickClassMessage(getSelectedClass().getRegistryName()),
                 Minecraft.getInstance().player.connection.getConnection(), NetworkDirection.PLAY_TO_SERVER);
         onClose();
+    }
+
+    @Override
+    public void onClose() {
+        classes.clear();
+        super.onClose();
     }
 
     public DCClass getSelectedClass() {
