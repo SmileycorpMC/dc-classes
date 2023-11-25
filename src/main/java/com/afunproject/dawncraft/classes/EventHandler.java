@@ -11,6 +11,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkDirection;
@@ -36,14 +37,24 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public void joinWorld(PlayerEvent.PlayerLoggedInEvent event) {
+    public void loggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getPlayer();
+        if (!(player instanceof ServerPlayer)) return;
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
-        if (optional.isPresent() && player instanceof ServerPlayer) {
-            PickedClass cap = optional.orElseGet(null);
-            if (!cap.picked()) NetworkHandler.NETWORK_INSTANCE.sendTo(new OpenClassGUIMessage(),
-                    ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-        }
+        if (!optional.isPresent()) return;
+        PickedClass cap = optional.orElseGet(null);
+        if (!cap.hasPicked()) NetworkHandler.NETWORK_INSTANCE.sendTo(new OpenClassGUIMessage(),
+                ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    @SubscribeEvent
+    public void joinedWorld(EntityJoinWorldEvent event) {
+        Entity player = event.getEntity();
+        if (!(player instanceof ServerPlayer)) return;
+        LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
+        if (!optional.isPresent()) return;
+        PickedClass cap = optional.orElseGet(null);
+        if (!cap.hasEffect()) cap.applyEffect((Player) player);
     }
 
     @SubscribeEvent
@@ -53,7 +64,7 @@ public class EventHandler {
         original.reviveCaps();
         LazyOptional<PickedClass> optionalOld = original.getCapability(DCClasses.PICKED_CLASS);
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
-        if (optionalOld.isPresent() && optional.isPresent()) if (optionalOld.orElseGet(null).picked()) optional.orElseGet(null).setPicked();
+        if (optionalOld.isPresent() && optional.isPresent()) optional.orElseGet(null).load(optionalOld.orElseGet(null).save());
     }
 
 }

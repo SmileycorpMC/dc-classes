@@ -1,34 +1,77 @@
 package com.afunproject.dawncraft.classes;
 
+import com.afunproject.dawncraft.classes.data.DCClass;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 public interface PickedClass {
 
-    boolean picked();
+    DCClass getDCClass();
+    void setDCClass(DCClass clazz);
 
-    void setPicked();
+    boolean hasPicked();
+
+    boolean hasEffect();
+
+    void applyEffect(Player player);
+
+    CompoundTag save();
+
+    void load(CompoundTag tag);
 
     class Implementation implements PickedClass {
 
-        private boolean picked;
+        private DCClass clazz;
+        private boolean hasEffect;
 
         @Override
-        public boolean picked() {
-            return picked;
+        public DCClass getDCClass() {
+            return clazz;
         }
 
         @Override
-        public void setPicked() {
-            picked = true;
+        public void setDCClass(DCClass clazz) {
+            this.clazz = clazz;
+        }
+
+        @Override
+        public boolean hasPicked() {
+            return clazz != null;
+        }
+
+        @Override
+        public boolean hasEffect() {
+            return hasEffect;
+        }
+
+        @Override
+        public void applyEffect(Player player) {
+            clazz.apply(player);
+            hasEffect = true;
+        }
+
+        @Override
+        public CompoundTag save() {
+            CompoundTag tag = new CompoundTag();
+            if (clazz != null) tag.putString("class", clazz.toString());
+            if (hasEffect) tag.putBoolean("hasEffect", hasEffect);
+            return tag;
+        }
+
+        @Override
+        public void load(CompoundTag tag) {
+            if (tag.contains("class")) clazz = ClassHandler.getClass(new ResourceLocation(tag.getString("class")));
+            if (tag.contains("hasEffect")) hasEffect = tag.getBoolean("hasEffect");
         }
 
     }
 
-    class Provider implements ICapabilitySerializable<ByteTag> {
+    class Provider implements ICapabilitySerializable<CompoundTag> {
 
         private final PickedClass impl;
 
@@ -42,13 +85,13 @@ public interface PickedClass {
         }
 
         @Override
-        public ByteTag serializeNBT() {
-            return ByteTag.valueOf(impl.picked());
+        public CompoundTag serializeNBT() {
+            return impl.save();
         }
 
         @Override
-        public void deserializeNBT(ByteTag nbt) {
-            if (nbt.getAsByte() > 0) impl.setPicked();
+        public void deserializeNBT(CompoundTag nbt) {
+            impl.load(nbt);
         }
 
     }

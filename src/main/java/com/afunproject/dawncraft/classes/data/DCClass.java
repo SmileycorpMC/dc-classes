@@ -13,6 +13,7 @@ import tictim.paraglider.contents.Contents;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
 import java.util.List;
@@ -52,6 +53,11 @@ public class DCClass {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return getRegistryName().toString();
+    }
+
     public String getTranslationKey() {
         return "class." + name.toString().replace(":", ".");
     }
@@ -61,9 +67,9 @@ public class DCClass {
                 "class_health", health - 20, AttributeModifier.Operation.ADDITION));
         player.getAttribute(Contents.MAX_STAMINA.get()).addPermanentModifier(new AttributeModifier(STAMINA_MOD,
                 "class_stamina", health - 28, AttributeModifier.Operation.ADDITION));
-        LazyOptional<CapabilitySkill> skillcap = player.getCapability(EpicFightCapabilities.CAPABILITY_SKILL);
-        if (skillcap.isPresent()) {
-            CapabilitySkill skills = skillcap.orElse(null);
+        PlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+        if (patch != null) {
+            CapabilitySkill skills = patch.getSkillCapability();
             for (String skill : this.skills) skills.addLearnedSkill(SkillManager.getSkill(skill));
         }
         for (ItemEntry item : items) item.apply(player);
