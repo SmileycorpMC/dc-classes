@@ -17,6 +17,7 @@ import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class DCClass {
 
@@ -27,7 +28,7 @@ public class DCClass {
     private final int index;
     private final float health;
     private final int stamina;
-    private final List<Skill> skills = Lists.newArrayList();
+    private final List<String> skills = Lists.newArrayList();
     private final List<ItemEntry> items = Lists.newArrayList();
 
     public DCClass(ResourceLocation name, JsonObject obj) throws Exception {
@@ -36,11 +37,14 @@ public class DCClass {
         health = obj.has("health") ? obj.get("health").getAsFloat() : 20;
         stamina = obj.has("stamina") ? obj.get("stamina").getAsInt() : 28;
         if (obj.has("starting_skills")) for (JsonElement element : obj.getAsJsonArray("starting_skills"))
-            skills.add(SkillManager.getSkill(element.getAsString()));
+            skills.add(element.getAsString());
         if (obj.has("items")) for (JsonElement element : obj.getAsJsonArray("items")) {
             try {
                 items.add(new ItemEntry(element.getAsJsonObject()));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -60,7 +64,7 @@ public class DCClass {
         LazyOptional<CapabilitySkill> skillcap = player.getCapability(EpicFightCapabilities.CAPABILITY_SKILL);
         if (skillcap.isPresent()) {
             CapabilitySkill skills = skillcap.orElse(null);
-            for (Skill skill : this.skills) skills.addLearnedSkill(skill);
+            for (String skill : this.skills) skills.addLearnedSkill(SkillManager.getSkill(skill));
         }
         for (ItemEntry item : items) item.apply(player);
     }
@@ -74,7 +78,7 @@ public class DCClass {
     }
 
     public List<Skill> getSkills() {
-        return skills;
+        return skills.stream().map(SkillManager::getSkill).collect(Collectors.toList());
     }
 
     public JsonObject serialize() {
@@ -83,7 +87,7 @@ public class DCClass {
         obj.addProperty("health", health);
         obj.addProperty("stamina", stamina);
         JsonArray skills = new JsonArray();
-        for (Skill skill : this.skills) skills.add(skill.toString());
+        for (String skill : this.skills) skills.add(skill);
         obj.add("skills", skills);
         JsonArray items = new JsonArray();
         for (ItemEntry item : this.items) items.add(item.serialize());
@@ -92,4 +96,7 @@ public class DCClass {
     }
 
 
+    public void setVisualEquipment(Player player) {
+        for (ItemEntry item : items) item.apply(player);
+    }
 }

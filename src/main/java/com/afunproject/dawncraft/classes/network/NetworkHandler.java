@@ -12,7 +12,7 @@ public class NetworkHandler {
     public static SimpleChannel NETWORK_INSTANCE;
 
     public static void initPackets() {
-        NETWORK_INSTANCE = NetworkUtils.createChannel(Constants.loc("Main"));
+        NETWORK_INSTANCE = NetworkUtils.createChannel(Constants.loc("main"));
         NetworkUtils.registerMessage(NETWORK_INSTANCE,0, OpenClassGUIMessage.class, (pkt, ctx) -> {
             ctx.get().enqueueWork(() -> DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientHandler::displayGUI));
             ctx.get().setPacketHandled(true);

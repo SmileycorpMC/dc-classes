@@ -28,7 +28,10 @@ public class DCClassLoader extends SimpleJsonResourceReloadListener {
         for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
             try {
                ClassHandler.addClass(new DCClass(entry.getKey(), (JsonObject) entry.getValue()));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
