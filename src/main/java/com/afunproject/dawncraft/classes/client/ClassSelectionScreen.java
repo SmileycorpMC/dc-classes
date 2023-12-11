@@ -23,8 +23,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkDirection;
+import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSkills;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
@@ -77,7 +80,8 @@ public class ClassSelectionScreen extends Screen {
         int entityY = height/2 + 50;
         if (i++ % 40 == 0) {
             LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
-            EpicFightSkills.BASIC_ATTACK.executeOnClient(patch, new FriendlyByteBuf(Unpooled.buffer()));
+            patch.getAnimator().playAnimation(EpicFightMod.getInstance().animationManager
+                    .findAnimationByPath(getSelectedClass().getAnimation()), 5);
         }
         InventoryScreen.renderEntityInInventory(entityX, entityY, 40, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
     }

@@ -13,7 +13,12 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import tictim.paraglider.contents.Contents;
 import yesman.epicfight.api.data.reloader.SkillManager;
+import yesman.epicfight.network.EpicFightNetworkManager;
+import yesman.epicfight.network.server.SPAddLearnedSkill;
+import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
@@ -34,6 +39,7 @@ public class DCClass {
     private final int stamina;
     private final List<String> skills = Lists.newArrayList();
     private final List<ItemEntry> items = Lists.newArrayList();
+    private final String animation;
 
     public DCClass(ResourceLocation name, JsonObject obj) throws Exception {
         this.name = name;
@@ -49,6 +55,8 @@ public class DCClass {
                 ClassesLogger.logError("Error adding item " + element.toString(), e);
             }
         }
+        animation = obj.has("animation") ? obj.get("animation").getAsString()
+                : "epicfight:biped/combat/sword_auto1";
     }
 
     public float getHealthMult() {
@@ -89,9 +97,13 @@ public class DCClass {
                     ClassesLogger.logError("Skill " + name + " is null", new NullPointerException());
                     continue;
                 }
-                patch.getSkill(skills.getSkillContainersFor(skill.getCategory())
-                        .iterator().next().getSlot().universalOrdinal()).setSkill(skill);
+                SkillSlot slot = skills.getSkillContainersFor(skill.getCategory())
+                        .iterator().next().getSlot();
                 if (skill.getCategory().learnable()) skills.addLearnedSkill(skill);
+                SkillContainer container = patch.getSkill(slot.universalOrdinal());
+                container.setSkill(skill);
+                EpicFightNetworkManager.sendToPlayer(new SPAddLearnedSkill(skill.toString()), player);
+                EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(slot, skill.toString(), SPChangeSkill.State.ENABLE), player);
             }
         } else ClassesLogger.logInfo("Patch is null");
         for (ItemEntry item : items) item.apply(player);
@@ -110,6 +122,14 @@ public class DCClass {
         return skills.stream().map(SkillManager::getSkill).collect(Collectors.toList());
     }
 
+    public void setVisualEquipment(Player player) {
+        for (ItemEntry item : items) item.apply(player);
+    }
+
+    public String getAnimation() {
+        return animation;
+    }
+
     public JsonObject serialize() {
         JsonObject obj = new JsonObject();
         obj.addProperty("index", index);
@@ -121,11 +141,8 @@ public class DCClass {
         JsonArray items = new JsonArray();
         for (ItemEntry item : this.items) items.add(item.serialize());
         obj.add("items", items);
+        obj.addProperty("animation", animation);
         return obj;
     }
 
-
-    public void setVisualEquipment(Player player) {
-        for (ItemEntry item : items) item.apply(player);
-    }
 }

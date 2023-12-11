@@ -3,6 +3,8 @@ package com.afunproject.dawncraft.classes;
 import com.afunproject.dawncraft.classes.data.DCClassLoader;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.OpenClassGUIMessage;
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -11,8 +13,10 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkDirection;
 
@@ -36,7 +40,7 @@ public class EventHandler {
         }
     }
 
-    @SubscribeEvent
+    //@SubscribeEvent(priority = EventPriority.LOWEST)
     public void loggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getPlayer();
         if (!(player instanceof ServerPlayer)) return;
@@ -66,6 +70,12 @@ public class EventHandler {
         LazyOptional<PickedClass> optionalOld = original.getCapability(DCClasses.PICKED_CLASS);
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
         if (optionalOld.isPresent() && optional.isPresent()) optional.orElseGet(null).load(optionalOld.orElseGet(null).save());
+    }
+
+    @SubscribeEvent
+    public void registerCommands(RegisterCommandsEvent event) {
+            CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+            PickClassCommand.register(dispatcher);
     }
 
 }
