@@ -86,7 +86,7 @@ public class DCClass {
                 "class_health", health - 20, AttributeModifier.Operation.ADDITION));
         player.setHealth(player.getMaxHealth());
         player.getAttribute(Contents.MAX_STAMINA.get()).addPermanentModifier(new AttributeModifier(STAMINA_MOD,
-                "class_stamina", health - 28, AttributeModifier.Operation.ADDITION));
+                "class_stamina", stamina - 28, AttributeModifier.Operation.ADDITION));
         ServerPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, ServerPlayerPatch.class);
         if (patch != null) {
             CapabilitySkill skills = patch.getSkillCapability();
