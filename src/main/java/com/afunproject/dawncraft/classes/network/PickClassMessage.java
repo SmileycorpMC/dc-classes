@@ -35,7 +35,11 @@ public class PickClassMessage extends SimpleAbstractMessage {
 
     public void apply(ServerPlayer sender) {
         LazyOptional<PickedClass> optional = sender.getCapability(DCClasses.PICKED_CLASS);
-        if (optional.isPresent()) optional.orElseGet(null).setDCClass(ClassHandler.getClass(loc));
+        if (optional.isPresent()) {
+            PickedClass cap = optional.orElseGet(null);
+            cap.setDCClass(ClassHandler.getClass(loc));
+            cap.applyEffect(sender);
+        }
     }
 
 }

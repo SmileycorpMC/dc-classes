@@ -16,7 +16,6 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkDirection;
 
@@ -51,7 +50,7 @@ public class EventHandler {
                 ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    @SubscribeEvent
+    //@SubscribeEvent
     public void tick(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntity() == null) return;
         Entity player = event.getEntity();
