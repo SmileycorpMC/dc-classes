@@ -68,7 +68,11 @@ public class EventHandler {
         original.reviveCaps();
         LazyOptional<PickedClass> optionalOld = original.getCapability(DCClasses.PICKED_CLASS);
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
-        if (optionalOld.isPresent() && optional.isPresent()) optional.orElseGet(null).load(optionalOld.orElseGet(null).save());
+        if (optionalOld.isPresent() && optional.isPresent()) {
+            PickedClass cap = optional.orElseGet(null);
+            cap.load(optionalOld.orElseGet(null).save());
+            cap.getDCClass().applyStatModifiers(player);
+        }
     }
 
     @SubscribeEvent

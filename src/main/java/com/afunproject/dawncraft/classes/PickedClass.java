@@ -52,6 +52,7 @@ public interface PickedClass {
 
         @Override
         public void applyEffect(ServerPlayer player) {
+            clazz.applyStatModifiers(player);
             clazz.apply(player);
             hasEffect = true;
         }

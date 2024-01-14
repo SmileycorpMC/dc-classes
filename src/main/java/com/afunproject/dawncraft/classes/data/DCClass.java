@@ -80,12 +80,6 @@ public class DCClass {
     }
 
     public void apply(ServerPlayer player) {
-        ClassesLogger.logInfo("Applying " + this + " modififers to player " + player.getDisplayName().getString());
-        player.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(HEALTH_MOD,
-                "class_health", health - 20, AttributeModifier.Operation.ADDITION));
-        player.setHealth(player.getMaxHealth());
-        player.getAttribute(Contents.MAX_STAMINA.get()).addPermanentModifier(new AttributeModifier(STAMINA_MOD,
-                "class_stamina", stamina - 28, AttributeModifier.Operation.ADDITION));
         ServerPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, ServerPlayerPatch.class);
         if (patch != null) {
             CapabilitySkill skills = patch.getSkillCapability();
@@ -107,6 +101,15 @@ public class DCClass {
         } else ClassesLogger.logInfo("Patch is null");
         for (ItemEntry item : items) item.apply(player);
         ClassesLogger.logInfo("Set player " + player.getDisplayName().getString() + " to class " + this);
+    }
+
+    public void applyStatModifiers(Player player) {
+        ClassesLogger.logInfo("Applying " + this + " modififers to player " + player.getDisplayName().getString());
+        player.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(HEALTH_MOD,
+                "class_health", health - 20, AttributeModifier.Operation.ADDITION));
+        player.setHealth(player.getMaxHealth());
+        player.getAttribute(Contents.MAX_STAMINA.get()).addPermanentModifier(new AttributeModifier(STAMINA_MOD,
+                "class_stamina", stamina - 28, AttributeModifier.Operation.ADDITION));
     }
 
     public int getIndex() {
