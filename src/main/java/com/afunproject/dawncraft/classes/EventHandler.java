@@ -1,5 +1,6 @@
 package com.afunproject.dawncraft.classes;
 
+import com.afunproject.dawncraft.classes.data.DCClass;
 import com.afunproject.dawncraft.classes.data.DCClassLoader;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.OpenClassGUIMessage;
@@ -71,7 +72,8 @@ public class EventHandler {
         if (optionalOld.isPresent() && optional.isPresent()) {
             PickedClass cap = optional.orElseGet(null);
             cap.load(optionalOld.orElseGet(null).save());
-            cap.getDCClass().applyStatModifiers(player);
+            DCClass clazz = cap.getDCClass();
+            if (clazz != null) clazz.applyStatModifiers(player);
         }
     }
 
