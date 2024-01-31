@@ -100,7 +100,7 @@ public interface PickedClass {
 
         @Override
         public void deserializeNBT(CompoundTag nbt) {
-            //impl.load(nbt);
+            impl.load(nbt);
         }
 
     }
