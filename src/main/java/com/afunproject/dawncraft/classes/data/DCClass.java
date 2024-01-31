@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -105,11 +106,13 @@ public class DCClass {
 
     public void applyStatModifiers(Player player) {
         ClassesLogger.logInfo("Applying " + this + " modififers to player " + player.getDisplayName().getString());
-        player.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(HEALTH_MOD,
-                "class_health", health - 20, AttributeModifier.Operation.ADDITION));
+        AttributeInstance healthAttribute = player.getAttribute(Attributes.MAX_HEALTH);
+        AttributeInstance staminaAttribute = player.getAttribute(Contents.MAX_STAMINA.get());
+        healthAttribute.removeModifier(HEALTH_MOD);
+        staminaAttribute.removeModifier(STAMINA_MOD);
+        healthAttribute.addPermanentModifier(new AttributeModifier(HEALTH_MOD, "class_health", health - 20, AttributeModifier.Operation.ADDITION));
         player.setHealth(player.getMaxHealth());
-        player.getAttribute(Contents.MAX_STAMINA.get()).addPermanentModifier(new AttributeModifier(STAMINA_MOD,
-                "class_stamina", stamina - 28, AttributeModifier.Operation.ADDITION));
+        staminaAttribute.addPermanentModifier(new AttributeModifier(STAMINA_MOD, "class_stamina", stamina - 28, AttributeModifier.Operation.ADDITION));
     }
 
     public int getIndex() {

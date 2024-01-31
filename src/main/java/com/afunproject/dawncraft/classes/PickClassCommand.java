@@ -28,7 +28,6 @@ public class PickClassCommand {
             try {
                 if (optional.isPresent()) {
                     PickedClass cap = optional.resolve().get();
-                    if (cap.hasPicked() || cap.hasEffect()) return 0;
                     ResourceLocation clazz = ResourceLocationArgument.getId(ctx, "class");
                     cap.setDCClass(ClassHandler.getClass(clazz));
                     cap.applyEffect(player);

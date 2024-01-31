@@ -64,16 +64,17 @@ public class EventHandler {
 
     @SubscribeEvent
     public void playerClone(PlayerEvent.Clone event) {
+        if (!(event.getPlayer() instanceof ServerPlayer)) return;
         Player original = event.getOriginal();
         Player player = event.getPlayer();
         original.reviveCaps();
+        if (!original.getGameProfile().equals(player.getGameProfile())) return;
         LazyOptional<PickedClass> optionalOld = original.getCapability(DCClasses.PICKED_CLASS);
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
         if (optionalOld.isPresent() && optional.isPresent()) {
             PickedClass cap = optional.orElseGet(null);
             cap.load(optionalOld.orElseGet(null).save());
-            DCClass clazz = cap.getDCClass();
-            if (clazz != null) clazz.applyStatModifiers(player);
+            cap.applyStatModifiers((ServerPlayer) player);
         }
     }
 

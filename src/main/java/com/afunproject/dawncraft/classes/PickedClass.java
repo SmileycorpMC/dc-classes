@@ -21,6 +21,8 @@ public interface PickedClass {
 
     void applyEffect(ServerPlayer player);
 
+    void applyStatModifiers(ServerPlayer player);
+
     CompoundTag save();
 
     void load(CompoundTag tag);
@@ -52,8 +54,13 @@ public interface PickedClass {
 
         @Override
         public void applyEffect(ServerPlayer player) {
-            clazz.applyStatModifiers(player);
+            applyStatModifiers(player);
             clazz.apply(player);
+        }
+
+        @Override
+        public void applyStatModifiers(ServerPlayer player) {
+            clazz.applyStatModifiers(player);
             hasEffect = true;
         }
 
