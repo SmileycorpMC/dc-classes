@@ -1,5 +1,13 @@
 {
 	"title.dcclasses.screen": "Classes",
-	"button.dawncraft.confirm": "Confirm",
-	"button.dawncraft.select": "Select"
+	"button.dcclasses.confirm": "Confirm",
+	"button.dcclasses.select": "Select",
+	"class.dawncraft.brawler" : "Brawler",
+	"class.dawncraft.astrologer" : "Astrologer",
+	"class.dawncraft.ronin" : "Ronin",
+	"class.dawncraft.warrior" : "Warrior",
+	"class.dawncraft.berserker" : "Berserker",
+	"class.dawncraft.tank" : "Tank",
+	"class.dawncraft.lancer" : "Lancer",
+	"class.dawncraft.roamer" : "Roamer"
 }

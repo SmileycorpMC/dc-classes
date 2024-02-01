@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -28,11 +29,15 @@ import java.util.stream.Collectors;
 
 public class ClassSelectionScreen extends Screen {
 
+    protected int imageWidth = 168;
+    protected int imageHeight = 180;
     private int page = 0;
     private final List<DCClass> classes;
     private final RemotePlayer player;
     private final List<Button> buttons = Lists.newArrayList();
     private int i;
+    protected int leftPos;
+    protected int topPos;
 
     public ClassSelectionScreen(List<DCClass> cache) {
         super(new TranslatableComponent("title.dcclasses.screen"));
@@ -40,9 +45,16 @@ public class ClassSelectionScreen extends Screen {
         classes = cache.stream().sorted(Comparator.comparingInt(DCClass::getIndex)).collect(Collectors.toList());
         player = new RemotePlayer(minecraft.level, minecraft.player.getGameProfile());
         reloadEquipment();
-        buttons.add(new Button(width/2 + 150, height / 2 + 50, 20, 20, new TextComponent("<"), b -> switchPage(page - 1)));
-        buttons.add(new Button(width/2 + 350, height / 2 + 50, 20, 20, new TextComponent(">"), b -> switchPage(page + 1)));
-        buttons.add(new Button(width/2 + 230, height / 2 + 180, 60, 20, new TranslatableComponent("button.dawncraft.confirm"), b -> confirm()));
+    }
+
+    @Override
+    public void init() {
+        buttons.clear();
+        this.leftPos = (this.width - this.imageWidth) / 2;
+        this.topPos = (this.height - this.imageHeight) / 2;
+        buttons.add(new Button(leftPos, topPos, 20, 20, new TextComponent("<"), b -> switchPage(page - 1)));
+        buttons.add(new Button(leftPos + imageWidth - 20, topPos, 20, 20, new TextComponent(">"), b -> switchPage(page + 1)));
+        buttons.add(new Button(leftPos + imageWidth / 2 - 30, topPos + imageHeight - 20, 60, 20, new TranslatableComponent("button.dcclasses.confirm"), b -> confirm()));
     }
 
     @Override
@@ -51,18 +63,23 @@ public class ClassSelectionScreen extends Screen {
     }
 
     @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
+    }
+
+    @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         renderDirtBackground(0);
         for(Widget widget : buttons) widget.render(poseStack, mouseX,mouseY, partialTicks);
         DCClass clazz = getSelectedClass();
         if (clazz == null) return;
-        drawCenteredString(poseStack, Minecraft.getInstance().font,  new TranslatableComponent(clazz.getTranslationKey()), width/2, height/2 - 75, 0x9E0CD2);
-        int entityX = width/2;
-        int entityY = height/2 + 50;
+        drawCenteredString(poseStack, Minecraft.getInstance().font,  new TranslatableComponent(clazz.getTranslationKey()), leftPos + imageWidth/2, topPos + 8, 0x9E0CD2);
+        int entityX = leftPos + imageWidth / 2;
+        int entityY = topPos + imageHeight / 2 + 50;
         if (i++ % 40 == 0) {
-            LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
+            /*LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
             patch.getAnimator().playAnimation(EpicFightMod.getInstance().animationManager
-                    .findAnimationByPath(getSelectedClass().getAnimation()), 5);
+                    .findAnimationByPath(getSelectedClass().getAnimation()), 5);*/
         }
         InventoryScreen.renderEntityInInventory(entityX, entityY, 40, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
     }

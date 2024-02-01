@@ -23,6 +23,7 @@ public class PickClassCommand {
     }
 
     public static int execute(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ClassesLogger.logInfo(ctx);
         for (ServerPlayer player : EntityArgument.getPlayers(ctx, "player")) {
             LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS, null);
             try {
@@ -30,7 +31,9 @@ public class PickClassCommand {
                     PickedClass cap = optional.resolve().get();
                     ResourceLocation clazz = ResourceLocationArgument.getId(ctx, "class");
                     cap.setDCClass(ClassHandler.getClass(clazz));
-                    cap.applyEffect(player);
+                    if (cap.hasEffect()) cap.applyEffect(player, false);
+                    else cap.applyEffect(player, true);
+                    ClassesLogger.logInfo("Successfully ran command to add " + player + " to class " + clazz);
                 }
             } catch (Exception e) {
                 ClassesLogger.logError("Failed to run pick class command", e);

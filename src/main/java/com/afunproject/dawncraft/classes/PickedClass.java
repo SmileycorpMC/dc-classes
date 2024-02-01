@@ -19,7 +19,7 @@ public interface PickedClass {
 
     boolean hasEffect();
 
-    void applyEffect(ServerPlayer player);
+    void applyEffect(ServerPlayer player, boolean addItems);
 
     void applyStatModifiers(ServerPlayer player);
 
@@ -53,9 +53,13 @@ public interface PickedClass {
         }
 
         @Override
-        public void applyEffect(ServerPlayer player) {
-            applyStatModifiers(player);
-            clazz.apply(player);
+        public void applyEffect(ServerPlayer player, boolean addItems) {
+            clazz.applySkills(player);
+            clazz.applyStatModifiers(player);
+            if (addItems) clazz.addItems(player);
+            ClassesLogger.logInfo("Set player " + player.getDisplayName().getString() + " to class " + clazz);
+            hasEffect = true;
+
         }
 
         @Override

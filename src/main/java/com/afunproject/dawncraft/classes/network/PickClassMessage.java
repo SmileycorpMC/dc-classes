@@ -38,7 +38,7 @@ public class PickClassMessage extends SimpleAbstractMessage {
         if (optional.isPresent()) {
             PickedClass cap = optional.orElseGet(null);
             cap.setDCClass(ClassHandler.getClass(loc));
-            cap.applyEffect(sender);
+            cap.applyEffect(sender, true);
         }
     }
 

@@ -17,6 +17,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkDirection;
 
@@ -40,7 +41,7 @@ public class EventHandler {
         }
     }
 
-    //@SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void loggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getPlayer();
         if (!(player instanceof ServerPlayer)) return;
@@ -59,7 +60,7 @@ public class EventHandler {
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
         if (!optional.isPresent()) return;
         PickedClass cap = optional.orElseGet(null);
-        if (cap.hasPicked() &! cap.hasEffect()) cap.applyEffect((ServerPlayer) player);
+        if (cap.hasPicked() &! cap.hasEffect()) cap.applyEffect((ServerPlayer) player, true);
     }
 
     @SubscribeEvent

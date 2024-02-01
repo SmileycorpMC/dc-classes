@@ -80,7 +80,7 @@ public class DCClass {
         return "class." + name.toString().replace(":", ".");
     }
 
-    public void apply(ServerPlayer player) {
+    public void applySkills(ServerPlayer player) {
         ServerPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, ServerPlayerPatch.class);
         if (patch != null) {
             CapabilitySkill skills = patch.getSkillCapability();
@@ -100,8 +100,6 @@ public class DCClass {
                 EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(slot, skill.toString(), SPChangeSkill.State.ENABLE), player);
             }
         } else ClassesLogger.logInfo("Patch is null");
-        for (ItemEntry item : items) item.apply(player);
-        ClassesLogger.logInfo("Set player " + player.getDisplayName().getString() + " to class " + this);
     }
 
     public void applyStatModifiers(Player player) {
@@ -111,8 +109,12 @@ public class DCClass {
         healthAttribute.removeModifier(HEALTH_MOD);
         staminaAttribute.removeModifier(STAMINA_MOD);
         healthAttribute.addPermanentModifier(new AttributeModifier(HEALTH_MOD, "class_health", health - 20, AttributeModifier.Operation.ADDITION));
-        player.setHealth(player.getMaxHealth());
+        player.setHealth((float) healthAttribute.getValue());
         staminaAttribute.addPermanentModifier(new AttributeModifier(STAMINA_MOD, "class_stamina", stamina - 28, AttributeModifier.Operation.ADDITION));
+    }
+
+    public void addItems(Player player) {
+        for (ItemEntry item : items) item.apply(player);
     }
 
     public int getIndex() {
