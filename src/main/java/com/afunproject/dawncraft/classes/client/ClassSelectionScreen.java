@@ -1,34 +1,36 @@
 package com.afunproject.dawncraft.classes.client;
 
 import com.afunproject.dawncraft.classes.data.DCClass;
+import com.afunproject.dawncraft.classes.data.ItemEntry;
 import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.PickClassMessage;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.player.RemotePlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkDirection;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.main.EpicFightMod;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.skill.Skill;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ClassSelectionScreen extends Screen {
-
+    
+    private static final int TEXT_WIDTH = 33;
     protected int imageWidth = 168;
     protected int imageHeight = 180;
     private int page = 0;
@@ -38,6 +40,8 @@ public class ClassSelectionScreen extends Screen {
     private int i;
     protected int leftPos;
     protected int topPos;
+    protected final List<Component> description = Lists.newArrayList();
+    private final List<ClassSlot> slots = Lists.newArrayList();
 
     public ClassSelectionScreen(List<DCClass> cache) {
         super(new TranslatableComponent("title.dcclasses.screen"));
@@ -45,6 +49,7 @@ public class ClassSelectionScreen extends Screen {
         classes = cache.stream().sorted(Comparator.comparingInt(DCClass::getIndex)).collect(Collectors.toList());
         player = new RemotePlayer(minecraft.level, minecraft.player.getGameProfile());
         reloadEquipment();
+        reloadText();
     }
 
     @Override
@@ -52,9 +57,10 @@ public class ClassSelectionScreen extends Screen {
         buttons.clear();
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
-        buttons.add(new Button(leftPos, topPos, 20, 20, new TextComponent("<"), b -> switchPage(page - 1)));
-        buttons.add(new Button(leftPos + imageWidth - 20, topPos, 20, 20, new TextComponent(">"), b -> switchPage(page + 1)));
-        buttons.add(new Button(leftPos + imageWidth / 2 - 30, topPos + imageHeight - 20, 60, 20, new TranslatableComponent("button.dcclasses.confirm"), b -> confirm()));
+        buttons.add(new Button(leftPos, topPos - 10, 20, 20, new TextComponent("<"), b -> switchPage(page - 1)));
+        buttons.add(new Button(leftPos + imageWidth - 20, topPos -10, 20, 20, new TextComponent(">"), b -> switchPage(page + 1)));
+        buttons.add(new Button(leftPos + imageWidth / 2 - 30, topPos + imageHeight, 60, 20, new TranslatableComponent("button.dcclasses.confirm"), b -> confirm()));
+        reloadSlots();
     }
 
     @Override
@@ -73,15 +79,34 @@ public class ClassSelectionScreen extends Screen {
         for(Widget widget : buttons) widget.render(poseStack, mouseX,mouseY, partialTicks);
         DCClass clazz = getSelectedClass();
         if (clazz == null) return;
-        drawCenteredString(poseStack, Minecraft.getInstance().font,  new TranslatableComponent(clazz.getTranslationKey()), leftPos + imageWidth/2, topPos + 8, 0x9E0CD2);
-        int entityX = leftPos + imageWidth / 2;
-        int entityY = topPos + imageHeight / 2 + 50;
-        if (i++ % 40 == 0) {
-            /*LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
-            patch.getAnimator().playAnimation(EpicFightMod.getInstance().animationManager
-                    .findAnimationByPath(getSelectedClass().getAnimation()), 5);*/
+        //title
+        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent(clazz.getTranslationKey()), leftPos + imageWidth/2, topPos -3, 0x9E0CD2);
+        //description
+        for (int i = 0; i < description.size(); i ++) {
+            Component component = description.get(i);
+            drawString(poseStack, minecraft.font,  component, leftPos, topPos + imageHeight / 2 + 20 + i * 8, 0xFFFFFF);
         }
+        //player
+        int entityX = leftPos + imageWidth / 2;
+        int entityY = topPos + imageHeight / 2 + 10;
+        /*if (i++ % 40 == 0) {
+            LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
+            patch.getAnimator().playAnimation(EpicFightMod.getInstance().animationManager
+                    .findAnimationByPath(getSelectedClass().getAnimation()), 5);
+        }*/
+        poseStack.pushPose();
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(180));
         InventoryScreen.renderEntityInInventory(entityX, entityY, 40, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
+        poseStack.popPose();
+        //items and skills
+        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.items"), leftPos - 10, topPos + 15, 0xFFFFFF);
+        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.skills"), leftPos + imageWidth + 10, topPos + 15, 0xFFFFFF);
+        ClassSlot hoveredSlot = null;
+        for (ClassSlot slot : slots) {
+            slot.render(poseStack, mouseX, mouseY, partialTicks);
+            if (hoveredSlot == null && slot.isMouseOver(mouseX, mouseY)) hoveredSlot = slot;
+        }
+        if (hoveredSlot != null) renderTooltip(poseStack, hoveredSlot.getTooltip(), Optional.empty(), mouseX, mouseY);
     }
 
     @Override
@@ -93,6 +118,8 @@ public class ClassSelectionScreen extends Screen {
     private void switchPage(int page) {
         this.page = Math.floorMod(page, classes.size());
         reloadEquipment();
+        reloadText();
+        reloadSlots();
     }
 
     private void reloadEquipment() {
@@ -103,10 +130,43 @@ public class ClassSelectionScreen extends Screen {
         if (ModList.get().isLoaded("curios")) CuriosIntegration.clear(player);
         clazz.setVisualEquipment(player);
     }
-
+    
+    private void reloadText() {
+        description.clear();
+        String str = new TranslatableComponent(getSelectedClass().getTranslationKey() + ".desc").getString();
+        int position = 0;
+        while (position < str.length()) {
+            int size = Math.min(TEXT_WIDTH, str.length() - position);
+            int newPos = position + size;
+            if (size < TEXT_WIDTH) {
+                description.add(new TextComponent(str.substring(position)));
+                break;
+            }
+            for (int i = 0; i <= size; i++) {
+                if (i == size) {
+                    description.add(new TextComponent(str.substring(position, newPos + 1)));
+                    position = newPos;
+                    break;
+                } else if (str.charAt(newPos - i) == ' ') {
+                    description.add(new TextComponent(str.substring(position, newPos - i + 1)));
+                    position = newPos - i + 1;
+                    break;
+                }
+            }
+        }
+    }
+    
+    private void reloadSlots() {
+        slots.clear();
+        DCClass clazz = getSelectedClass();
+        for (int i = 0; i < clazz.getItems().size(); i++) slots.add(new ItemSlot(clazz.getItems().get(i),leftPos - 18 - i/4 * 18, topPos + 25 + (i % 4) * 18));
+        List<Skill> skills = clazz.getSkills();
+        for (int i = 0; i < skills.size(); i++) slots.add(new SkillSlot(skills.get(i), leftPos + imageWidth + 2 + i/4 * 18, topPos + 25 + (i % 4) * 18));
+    }
+    
     private void confirm() {
         NetworkHandler.NETWORK_INSTANCE.sendTo(new PickClassMessage(getSelectedClass().getRegistryName()),
-                Minecraft.getInstance().player.connection.getConnection(), NetworkDirection.PLAY_TO_SERVER);
+                minecraft.player.connection.getConnection(), NetworkDirection.PLAY_TO_SERVER);
         onClose();
     }
 

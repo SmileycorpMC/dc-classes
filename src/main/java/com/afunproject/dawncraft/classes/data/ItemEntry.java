@@ -4,12 +4,14 @@ import com.afunproject.dawncraft.classes.ClassesLogger;
 import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.smileycorp.atlas.api.util.TextUtils;
 
 public class ItemEntry {
 
@@ -38,6 +40,15 @@ public class ItemEntry {
                 player.getInventory().add(stack.copy());
             } else player.setItemSlot(slot, stack.copy());
         }
+    }
+    
+    public ItemStack getStack() {
+        return stack;
+    }
+    
+    public String getSlot() {
+        String[] split = slot.split(":");
+        return split.length < 1 ? "" : TextUtils.toProperCase(split[split.length - 1]);
     }
 
     public JsonObject serialize() {
