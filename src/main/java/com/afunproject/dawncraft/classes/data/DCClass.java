@@ -1,6 +1,7 @@
 package com.afunproject.dawncraft.classes.data;
 
 import com.afunproject.dawncraft.classes.ClassesLogger;
+import com.afunproject.dawncraft.classes.DCClasses;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -126,7 +127,13 @@ public class DCClass {
     }
 
     public List<Skill> getSkills() {
-        return skills.stream().map(SkillManager::getSkill).collect(Collectors.toList());
+        List<Skill> list = Lists.newArrayList();
+        for (String name : skills) {
+            Skill skill = SkillManager.getSkill(name);
+            if (skill == null) ClassesLogger.logError("Skill " + name + " is null ", new NullPointerException());
+            else list.add(skill);
+        }
+        return list;
     }
 
     public void setVisualEquipment(Player player) {
