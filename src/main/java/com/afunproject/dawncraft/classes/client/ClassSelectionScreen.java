@@ -1,22 +1,28 @@
 package com.afunproject.dawncraft.classes.client;
 
+import com.afunproject.dawncraft.classes.Constants;
 import com.afunproject.dawncraft.classes.data.DCClass;
 import com.afunproject.dawncraft.classes.data.ItemEntry;
 import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.PickClassMessage;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
@@ -30,7 +36,7 @@ import java.util.stream.Collectors;
 
 public class ClassSelectionScreen extends Screen {
     
-    private static final int TEXT_WIDTH = 33;
+    private static final int TEXT_WIDTH = 30;
     protected int imageWidth = 168;
     protected int imageHeight = 180;
     private int page = 0;
@@ -82,6 +88,12 @@ public class ClassSelectionScreen extends Screen {
         //title
         drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent(clazz.getTranslationKey()), leftPos + imageWidth/2, topPos -3, 0x9E0CD2);
         //description
+        poseStack.pushPose();
+        RenderSystem.setShaderTexture(0, Constants.loc("textures/gui/classes_description.png"));
+        RenderSystem.enableBlend();
+        GuiComponent.blit(poseStack, leftPos - 6, topPos + imageHeight / 2 + 14, 1, 0, 0, 179, 75, 179, 75);
+        RenderSystem.disableBlend();
+        poseStack.popPose();
         for (int i = 0; i < description.size(); i ++) {
             Component component = description.get(i);
             drawString(poseStack, minecraft.font,  component, leftPos, topPos + imageHeight / 2 + 20 + i * 8, 0xFFFFFF);
@@ -89,15 +101,23 @@ public class ClassSelectionScreen extends Screen {
         //player
         int entityX = leftPos + imageWidth / 2;
         int entityY = topPos + imageHeight / 2 + 10;
-        /*if (i++ % 40 == 0) {
-            LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
-            patch.getAnimator().playAnimation(EpicFightMod.getInstance().animationManager
-                    .findAnimationByPath(getSelectedClass().getAnimation()), 5);
-        }*/
+        InventoryScreen.renderEntityInInventory(entityX, entityY, 38, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
+        //attributes
         poseStack.pushPose();
-        poseStack.mulPose(Vector3f.ZP.rotationDegrees(180));
-        InventoryScreen.renderEntityInInventory(entityX, entityY, 40, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
+        RenderSystem.setShaderTexture(0, Constants.loc("textures/gui/attribute/health.png"));
+        RenderSystem.enableBlend();
+        GuiComponent.blit(poseStack, leftPos + 60, topPos + 14, 1, 0, 0, 9, 9, 9, 9);
+        RenderSystem.disableBlend();
         poseStack.popPose();
+        MutableComponent text = new TextComponent(String.valueOf(clazz.getHealthMult()));
+        drawString(poseStack, minecraft.font,  text, leftPos + 60 - minecraft.font.width(text) - 2, topPos + 15, ChatFormatting.DARK_RED.getColor());
+        poseStack.pushPose();
+        RenderSystem.setShaderTexture(0, Constants.loc("textures/gui/attribute/stamina.png"));
+        RenderSystem.enableBlend();
+        GuiComponent.blit(poseStack, leftPos + imageWidth - 69, topPos + 14, 1, 0, 0, 9, 9, 9, 9);
+        RenderSystem.disableBlend();
+        poseStack.popPose();
+        drawString(poseStack, minecraft.font,  new TextComponent(String.format("%.2f", clazz.getStaminaMult())), leftPos + imageWidth - 58, topPos + 15, ChatFormatting.GREEN.getColor());
         //items and skills
         drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.items"), leftPos - 10, topPos + 15, 0xFFFFFF);
         drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.skills"), leftPos + imageWidth + 10, topPos + 15, 0xFFFFFF);
@@ -138,7 +158,13 @@ public class ClassSelectionScreen extends Screen {
         while (position < str.length()) {
             int size = Math.min(TEXT_WIDTH, str.length() - position);
             int newPos = position + size;
-            if (size < TEXT_WIDTH) {
+            if (str.substring(position, newPos).contains("\n")) {
+                int i = str.substring(position, newPos).indexOf("\n");
+                description.add(new TextComponent(str.substring(position, position + i)));
+                position = position + i + 1;
+                continue;
+            }
+            if (size < TEXT_WIDTH || newPos >= str.length()) {
                 description.add(new TextComponent(str.substring(position)));
                 break;
             }
@@ -159,9 +185,9 @@ public class ClassSelectionScreen extends Screen {
     private void reloadSlots() {
         slots.clear();
         DCClass clazz = getSelectedClass();
-        for (int i = 0; i < clazz.getItems().size(); i++) slots.add(new ItemSlot(clazz.getItems().get(i),leftPos - 18 - i/4 * 18, topPos + 25 + (i % 4) * 18));
+        for (int i = 0; i < clazz.getItems().size(); i++) slots.add(new ItemSlot(clazz.getItems().get(i),leftPos - 18 - i/4 * 18, topPos + 28 + (i % 4) * 18));
         List<Skill> skills = clazz.getSkills();
-        for (int i = 0; i < skills.size(); i++) slots.add(new SkillSlot(skills.get(i), leftPos + imageWidth + 2 + i/4 * 18, topPos + 25 + (i % 4) * 18));
+        for (int i = 0; i < skills.size(); i++) slots.add(new SkillSlot(skills.get(i), leftPos + imageWidth + 2 + i/4 * 18, topPos + 28 + (i % 4) * 18));
     }
     
     private void confirm() {
