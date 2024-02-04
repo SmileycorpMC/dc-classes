@@ -28,7 +28,7 @@ public class ItemSlot extends ClassSlot {
     }
     
     @Override
-    public void render(PoseStack p_94669_, int p_94670_, int p_94671_, float p_94672_) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         ItemRenderer renderer = minecraft.getItemRenderer();
         renderer.renderGuiItem(item.getStack(), x, y);

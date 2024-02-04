@@ -59,7 +59,7 @@ public class SkillSlot extends ClassSlot {
     }
     
     @Override
-    public void render(PoseStack poseStack, int p_94670_, int p_94671_, float p_94672_) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         poseStack.pushPose();
         RenderSystem.setShaderTexture(0, skill.getSkillTexture());
         RenderSystem.enableBlend();

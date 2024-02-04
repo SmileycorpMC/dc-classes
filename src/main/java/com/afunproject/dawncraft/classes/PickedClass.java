@@ -22,6 +22,10 @@ public interface PickedClass {
     void applyEffect(ServerPlayer player, boolean addItems);
 
     void applyStatModifiers(ServerPlayer player);
+    
+    void setGUIOpen(boolean GUIOpen);
+    
+    boolean isGUIOpen();
 
     CompoundTag save();
 
@@ -31,6 +35,7 @@ public interface PickedClass {
 
         private DCClass clazz;
         private boolean hasEffect;
+        private boolean GUIOpen;
 
         @Override
         public DCClass getDCClass() {
@@ -54,18 +59,29 @@ public interface PickedClass {
 
         @Override
         public void applyEffect(ServerPlayer player, boolean addItems) {
+            if (clazz == null) return;
             clazz.applySkills(player);
             clazz.applyStatModifiers(player);
             if (addItems) clazz.addItems(player);
             ClassesLogger.logInfo("Set player " + player.getDisplayName().getString() + " to class " + clazz);
             hasEffect = true;
-
         }
 
         @Override
         public void applyStatModifiers(ServerPlayer player) {
+            if (clazz == null) return;
             clazz.applyStatModifiers(player);
             hasEffect = true;
+        }
+        
+        @Override
+        public void setGUIOpen(boolean GUIOpen) {
+            this.GUIOpen = GUIOpen;
+        }
+    
+        @Override
+        public boolean isGUIOpen() {
+            return GUIOpen;
         }
 
         @Override

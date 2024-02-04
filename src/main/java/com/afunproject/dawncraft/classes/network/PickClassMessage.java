@@ -39,6 +39,7 @@ public class PickClassMessage extends SimpleAbstractMessage {
             PickedClass cap = optional.orElseGet(null);
             cap.setDCClass(ClassHandler.getClass(loc));
             cap.applyEffect(sender, true);
+            cap.setGUIOpen(false);
         }
     }
 

@@ -14,6 +14,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -47,11 +48,14 @@ public class EventHandler {
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
         if (!optional.isPresent()) return;
         PickedClass cap = optional.orElseGet(null);
-        if (!cap.hasPicked()) NetworkHandler.NETWORK_INSTANCE.sendTo(new OpenClassGUIMessage(),
-                ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        if (!cap.hasPicked()) {
+            NetworkHandler.NETWORK_INSTANCE.sendTo(new OpenClassGUIMessage(),
+                    ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            cap.setGUIOpen(true);
+        }
     }
 
-    //@SubscribeEvent
+    /*@SubscribeEvent
     public void tick(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntity() == null) return;
         Entity player = event.getEntity();
@@ -60,6 +64,17 @@ public class EventHandler {
         if (!optional.isPresent()) return;
         PickedClass cap = optional.orElseGet(null);
         if (cap.hasPicked() &! cap.hasEffect()) cap.applyEffect((ServerPlayer) player, true);
+    }*/
+    
+    @SubscribeEvent
+    public void damage(LivingAttackEvent event) {
+        if (event.getEntity() == null) return;
+        Entity player = event.getEntity();
+        if (!(player instanceof ServerPlayer)) return;
+        LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
+        if (!optional.isPresent()) return;
+        PickedClass cap = optional.orElseGet(null);
+        if (cap.isGUIOpen()) event.setCanceled(true);
     }
 
     @SubscribeEvent

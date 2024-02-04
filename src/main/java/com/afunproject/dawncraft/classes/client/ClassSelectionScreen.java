@@ -78,7 +78,7 @@ public class ClassSelectionScreen extends Screen {
         if (clazz == null) return;
         //title
         drawBox(poseStack, leftPos + 18, topPos - 10, 131, 20);
-        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent(clazz.getTranslationKey()), leftPos + guiWidth /2, topPos -3, 0x9E0CD2);
+        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent(clazz.getTranslationKey()), leftPos + guiWidth /2, topPos -4, 0x9E0CD2);
         //description
         int offset = (int)((float)(description.size() * 9)/2f);
         drawBox(poseStack, leftPos - 6, topPos + guiHeight / 2 + 48 - offset, 179, description.size() * 9 + 8);
