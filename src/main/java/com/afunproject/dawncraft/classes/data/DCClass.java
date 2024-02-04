@@ -1,7 +1,6 @@
 package com.afunproject.dawncraft.classes.data;
 
 import com.afunproject.dawncraft.classes.ClassesLogger;
-import com.afunproject.dawncraft.classes.DCClasses;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,7 +26,6 @@ import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class DCClass {
 

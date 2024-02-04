@@ -4,7 +4,6 @@ import com.afunproject.dawncraft.classes.ClassesLogger;
 import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;

@@ -9,7 +9,6 @@ import com.afunproject.dawncraft.classes.network.PickClassMessage;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -25,6 +24,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.gui.GuiUtils;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkDirection;
 import yesman.epicfight.skill.Skill;
@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
 
 public class ClassSelectionScreen extends Screen {
     
-    private static final int TEXT_WIDTH = 30;
-    protected int imageWidth = 168;
-    protected int imageHeight = 180;
+    private static final int TEXT_WIDTH = 31;
+    protected int guiWidth = 168;
+    protected int guiHeight = 180;
     private int page = 0;
     private final List<DCClass> classes;
     private final RemotePlayer player;
@@ -48,6 +48,7 @@ public class ClassSelectionScreen extends Screen {
     protected int topPos;
     protected final List<Component> description = Lists.newArrayList();
     private final List<ClassSlot> slots = Lists.newArrayList();
+    private int itemX, itemWidth, itemHeight, skillX, skillWidth, skillHeight;
 
     public ClassSelectionScreen(List<DCClass> cache) {
         super(new TranslatableComponent("title.dcclasses.screen"));
@@ -61,22 +62,12 @@ public class ClassSelectionScreen extends Screen {
     @Override
     public void init() {
         buttons.clear();
-        this.leftPos = (this.width - this.imageWidth) / 2;
-        this.topPos = (this.height - this.imageHeight) / 2;
+        leftPos = (width - guiWidth) / 2;
+        topPos = (height - guiHeight) / 2;
         buttons.add(new Button(leftPos, topPos - 10, 20, 20, new TextComponent("<"), b -> switchPage(page - 1)));
-        buttons.add(new Button(leftPos + imageWidth - 20, topPos -10, 20, 20, new TextComponent(">"), b -> switchPage(page + 1)));
-        buttons.add(new Button(leftPos + imageWidth / 2 - 30, topPos + imageHeight, 60, 20, new TranslatableComponent("button.dcclasses.confirm"), b -> confirm()));
+        buttons.add(new Button(leftPos + guiWidth - 20, topPos -10, 20, 20, new TextComponent(">"), b -> switchPage(page + 1)));
+        buttons.add(new Button(leftPos + guiWidth / 2 - 30, topPos + guiHeight, 60, 20, new TranslatableComponent("button.dcclasses.confirm"), b -> confirm()));
         reloadSlots();
-    }
-
-    @Override
-    public boolean isPauseScreen() {
-        return true;
-    }
-
-    @Override
-    public boolean shouldCloseOnEsc() {
-        return false;
     }
 
     @Override
@@ -86,21 +77,18 @@ public class ClassSelectionScreen extends Screen {
         DCClass clazz = getSelectedClass();
         if (clazz == null) return;
         //title
-        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent(clazz.getTranslationKey()), leftPos + imageWidth/2, topPos -3, 0x9E0CD2);
+        drawBox(poseStack, leftPos + 18, topPos - 10, 131, 20);
+        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent(clazz.getTranslationKey()), leftPos + guiWidth /2, topPos -3, 0x9E0CD2);
         //description
-        poseStack.pushPose();
-        RenderSystem.setShaderTexture(0, Constants.loc("textures/gui/classes_description.png"));
-        RenderSystem.enableBlend();
-        GuiComponent.blit(poseStack, leftPos - 6, topPos + imageHeight / 2 + 14, 1, 0, 0, 179, 75, 179, 75);
-        RenderSystem.disableBlend();
-        poseStack.popPose();
+        int offset = (int)((float)(description.size() * 9)/2f);
+        drawBox(poseStack, leftPos - 6, topPos + guiHeight / 2 + 48 - offset, 179, description.size() * 9 + 8);
         for (int i = 0; i < description.size(); i ++) {
             Component component = description.get(i);
-            drawString(poseStack, minecraft.font,  component, leftPos, topPos + imageHeight / 2 + 20 + i * 8, 0xFFFFFF);
+            drawCenteredString(poseStack, minecraft.font,  component, leftPos + guiWidth / 2, topPos + guiHeight / 2 + 52 + i * 9 - offset, 0xFFFFFF);
         }
         //player
-        int entityX = leftPos + imageWidth / 2;
-        int entityY = topPos + imageHeight / 2 + 10;
+        int entityX = leftPos + guiWidth / 2;
+        int entityY = topPos + guiHeight / 2 + 10;
         InventoryScreen.renderEntityInInventory(entityX, entityY, 38, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
         //attributes
         poseStack.pushPose();
@@ -114,13 +102,15 @@ public class ClassSelectionScreen extends Screen {
         poseStack.pushPose();
         RenderSystem.setShaderTexture(0, Constants.loc("textures/gui/attribute/stamina.png"));
         RenderSystem.enableBlend();
-        GuiComponent.blit(poseStack, leftPos + imageWidth - 69, topPos + 14, 1, 0, 0, 9, 9, 9, 9);
+        GuiComponent.blit(poseStack, leftPos + guiWidth - 69, topPos + 14, 1, 0, 0, 9, 9, 9, 9);
         RenderSystem.disableBlend();
         poseStack.popPose();
-        drawString(poseStack, minecraft.font,  new TextComponent(String.format("%.2f", clazz.getStaminaMult())), leftPos + imageWidth - 58, topPos + 15, ChatFormatting.GREEN.getColor());
+        drawString(poseStack, minecraft.font,  new TextComponent((int)(clazz.getStaminaMult() * 100) + "%"), leftPos + guiWidth - 58, topPos + 15, ChatFormatting.GREEN.getColor());
         //items and skills
-        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.items"), leftPos - 10, topPos + 15, 0xFFFFFF);
-        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.skills"), leftPos + imageWidth + 10, topPos + 15, 0xFFFFFF);
+        drawBox(poseStack, itemX, topPos + 17, itemWidth, itemHeight);
+        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.items"), leftPos - 10, topPos + 21, 0xFFFFFF);
+        drawBox(poseStack, skillX, topPos + 17, skillWidth, skillHeight);
+        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.skills"), leftPos + guiWidth + 10, topPos + 21, 0xFFFFFF);
         ClassSlot hoveredSlot = null;
         for (ClassSlot slot : slots) {
             slot.render(poseStack, mouseX, mouseY, partialTicks);
@@ -134,6 +124,12 @@ public class ClassSelectionScreen extends Screen {
         for (Button button : buttons) if (button.isMouseOver(mouseX, mouseY)) return button.mouseClicked(mouseX, mouseY, p_95587_);
         return false;
     }
+    
+    @Override
+    public void onClose() {
+        classes.clear();
+        super.onClose();
+    }
 
     private void switchPage(int page) {
         this.page = Math.floorMod(page, classes.size());
@@ -141,7 +137,18 @@ public class ClassSelectionScreen extends Screen {
         reloadText();
         reloadSlots();
     }
-
+    
+    private void confirm() {
+        NetworkHandler.NETWORK_INSTANCE.sendTo(new PickClassMessage(getSelectedClass().getRegistryName()),
+                minecraft.player.connection.getConnection(), NetworkDirection.PLAY_TO_SERVER);
+        onClose();
+    }
+    
+    public DCClass getSelectedClass() {
+        if (classes.size() == 0) return null;
+        return classes.get(page);
+    }
+    
     private void reloadEquipment() {
         DCClass clazz = getSelectedClass();
         if (clazz == null) return;
@@ -156,6 +163,7 @@ public class ClassSelectionScreen extends Screen {
         String str = new TranslatableComponent(getSelectedClass().getTranslationKey() + ".desc").getString();
         int position = 0;
         while (position < str.length()) {
+            if (description.size() >= 7) break;
             int size = Math.min(TEXT_WIDTH, str.length() - position);
             int newPos = position + size;
             if (str.substring(position, newPos).contains("\n")) {
@@ -185,26 +193,32 @@ public class ClassSelectionScreen extends Screen {
     private void reloadSlots() {
         slots.clear();
         DCClass clazz = getSelectedClass();
-        for (int i = 0; i < clazz.getItems().size(); i++) slots.add(new ItemSlot(clazz.getItems().get(i),leftPos - 18 - i/4 * 18, topPos + 28 + (i % 4) * 18));
+        List<ItemEntry> items = clazz.getItems();
+        int itemRows = (int)(((float)items.size() -1) / 3f) + 1;
+        itemWidth = Math.max(itemRows * 18, minecraft.font.width(new TranslatableComponent("text.dcclasses.items"))) + 8;
+        itemHeight = 21 + (int)Math.ceil((float)items.size()/(float)itemRows) * 18;
+        itemX = leftPos - 10 - (int)((float)itemWidth / 2f);
+        for (int i = 0; i < items.size(); i++) slots.add(new ItemSlot(items.get(i),leftPos - 26 + itemRows * 8 - i % itemRows * 18, topPos + 34 + (i / itemRows) * 18));
         List<Skill> skills = clazz.getSkills();
-        for (int i = 0; i < skills.size(); i++) slots.add(new SkillSlot(skills.get(i), leftPos + imageWidth + 2 + i/4 * 18, topPos + 28 + (i % 4) * 18));
+        int skillRows = (int)((float)(skills.size() -1) / 3f) + 1;
+        skillWidth = Math.max(skillRows * 18, minecraft.font.width(new TranslatableComponent("text.dcclasses.skills"))) + 8;
+        skillHeight = 21 + (int)Math.ceil((float)skills.size()/(float)skillRows) * 18;
+        skillX = leftPos + guiWidth + 10 - (int)((float)skillWidth / 2f);
+        for (int i = 0; i < skills.size(); i++) slots.add(new SkillSlot(skills.get(i), leftPos + guiWidth + 10 - skillRows * 8 + i % skillRows * 18, topPos + 34 + (i / skillRows) * 18));
     }
     
-    private void confirm() {
-        NetworkHandler.NETWORK_INSTANCE.sendTo(new PickClassMessage(getSelectedClass().getRegistryName()),
-                minecraft.player.connection.getConnection(), NetworkDirection.PLAY_TO_SERVER);
-        onClose();
+    private void drawBox(PoseStack poseStack, int x, int y, int width, int height) {
+        GuiUtils.drawContinuousTexturedBox(poseStack, new ResourceLocation("textures/gui/recipe_book.png"), x, y, 82, 208, width, height, 32, 32, 4, 4, 4, 4, 1);
     }
-
+    
     @Override
-    public void onClose() {
-        classes.clear();
-        super.onClose();
+    public boolean isPauseScreen() {
+        return true;
     }
-
-    public DCClass getSelectedClass() {
-        if (classes.size() == 0) return null;
-        return classes.get(page);
+    
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
     }
 
 }

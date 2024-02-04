@@ -1,6 +1,5 @@
 package com.afunproject.dawncraft.classes;
 
-import com.afunproject.dawncraft.classes.data.DCClass;
 import com.afunproject.dawncraft.classes.data.DCClassLoader;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.OpenClassGUIMessage;

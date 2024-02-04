@@ -1,19 +1,13 @@
 package com.afunproject.dawncraft.classes.client;
 
-import com.afunproject.dawncraft.classes.data.ItemEntry;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.item.TooltipFlag;
-import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.skill.Skill;
 
 import java.util.List;
