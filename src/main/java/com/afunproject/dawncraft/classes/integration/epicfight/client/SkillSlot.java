@@ -1,5 +1,6 @@
-package com.afunproject.dawncraft.classes.client;
+package com.afunproject.dawncraft.classes.integration.epicfight.client;
 
+import com.afunproject.dawncraft.classes.client.ClassSlot;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.skill.Skill;
 
 import java.util.List;
@@ -19,9 +21,9 @@ public class SkillSlot extends ClassSlot {
     private final Skill skill;
     private final List<Component> tooltip = Lists.newArrayList();
     
-    public SkillSlot(Skill skill, int x, int y) {
+    public SkillSlot(String name, int x, int y) {
         super(x, y, 16, 16);
-        this.skill = skill;
+        skill = SkillManager.getSkill(name);
         tooltip.add(new TranslatableComponent(skill.getTranslationKey()).withStyle(ChatFormatting.AQUA));
         tooltip.add(new TranslatableComponent("skill.epicfight." + skill.getCategory().toString().toLowerCase() + ".category").withStyle(ChatFormatting.BLUE));
         int position = 0;

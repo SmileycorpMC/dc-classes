@@ -1,0 +1,7 @@
+{
+	"paraglider:max_stamina": {
+		"base_value": 28,
+		"display_mode": "PERCENTAGE",
+		"text_colour": "#55FF55"
+	}
+}

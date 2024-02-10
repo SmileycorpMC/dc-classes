@@ -36,6 +36,14 @@ public class ClassesLogger {
     public static void logError(Object message, Exception e) {
         writeToFile(e);
         writeToFile(message);
+        for (StackTraceElement traceElement : e.getStackTrace()) writeToFile(traceElement);
+        logger.error(message, e);
+        e.printStackTrace();
+    }
+    
+    public static void logErrorCompletable(Object message, Exception e) {
+        writeToFile(message);
+        for (StackTraceElement traceElement : e.getStackTrace()) writeToFile(traceElement);
         logger.error(message, e);
         e.printStackTrace();
     }

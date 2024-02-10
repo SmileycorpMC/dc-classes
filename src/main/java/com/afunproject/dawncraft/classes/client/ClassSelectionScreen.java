@@ -1,24 +1,24 @@
 package com.afunproject.dawncraft.classes.client;
 
-import com.afunproject.dawncraft.classes.Constants;
+import com.afunproject.dawncraft.classes.ClassesLogger;
+import com.afunproject.dawncraft.classes.data.AttributeEntry;
 import com.afunproject.dawncraft.classes.data.DCClass;
 import com.afunproject.dawncraft.classes.data.ItemEntry;
 import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
+import com.afunproject.dawncraft.classes.integration.epicfight.EpicFightIntegration;
+import com.afunproject.dawncraft.classes.integration.epicfight.client.EpicFightClientIntegration;
+import com.afunproject.dawncraft.classes.integration.epicfight.client.SkillSlot;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.PickClassMessage;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +27,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.GuiUtils;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkDirection;
-import yesman.epicfight.skill.Skill;
 
 import java.util.Comparator;
 import java.util.List;
@@ -53,8 +52,13 @@ public class ClassSelectionScreen extends Screen {
     public ClassSelectionScreen(List<DCClass> cache) {
         super(new TranslatableComponent("title.dcclasses.screen"));
         Minecraft minecraft = Minecraft.getInstance();
-        classes = cache.stream().sorted(Comparator.comparingInt(DCClass::getIndex)).collect(Collectors.toList());
         player = new RemotePlayer(minecraft.level, minecraft.player.getGameProfile());
+        if (cache.isEmpty()) {
+            ClassesLogger.logError("no enabled classes ", new Exception());
+            classes = null;
+            return;
+        }
+        classes = cache.stream().sorted(Comparator.comparingInt(DCClass::getIndex)).collect(Collectors.toList());
         reloadEquipment();
         reloadText();
     }
@@ -88,25 +92,10 @@ public class ClassSelectionScreen extends Screen {
         }
         //player
         int entityX = leftPos + guiWidth / 2;
-        int entityY = topPos + guiHeight / 2 + 10;
-        InventoryScreen.renderEntityInInventory(entityX, entityY, 38, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
-        //attributes
-        poseStack.pushPose();
-        RenderSystem.setShaderTexture(0, Constants.loc("textures/gui/attribute/health.png"));
-        RenderSystem.enableBlend();
-        GuiComponent.blit(poseStack, leftPos + 60, topPos + 14, 1, 0, 0, 9, 9, 9, 9);
-        RenderSystem.disableBlend();
-        poseStack.popPose();
-        MutableComponent text = new TextComponent(String.valueOf(clazz.getHealthMult()));
-        drawString(poseStack, minecraft.font,  text, leftPos + 60 - minecraft.font.width(text) - 2, topPos + 15, ChatFormatting.DARK_RED.getColor());
-        poseStack.pushPose();
-        RenderSystem.setShaderTexture(0, Constants.loc("textures/gui/attribute/stamina.png"));
-        RenderSystem.enableBlend();
-        GuiComponent.blit(poseStack, leftPos + guiWidth - 69, topPos + 14, 1, 0, 0, 9, 9, 9, 9);
-        RenderSystem.disableBlend();
-        poseStack.popPose();
-        drawString(poseStack, minecraft.font,  new TextComponent((int)(clazz.getStaminaMult() * 100) + "%"), leftPos + guiWidth - 58, topPos + 15, ChatFormatting.GREEN.getColor());
-        //items and skills
+        int entityY = topPos + guiHeight / 2 + 13;
+        if (ModList.get().isLoaded("epicfight")) EpicFightClientIntegration.renderPlayer(poseStack, entityX, entityY, player, partialTicks, clazz.getAnimation());
+        else InventoryScreen.renderEntityInInventory(entityX, entityY, 38, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
+        //items, skills and attributes
         drawBox(poseStack, itemX, topPos + 17, itemWidth, itemHeight);
         drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.items"), leftPos - 10, topPos + 21, 0xFFFFFF);
         drawBox(poseStack, skillX, topPos + 17, skillWidth, skillHeight);
@@ -127,7 +116,7 @@ public class ClassSelectionScreen extends Screen {
     
     @Override
     public void onClose() {
-        classes.clear();
+        if (classes != null) classes.clear();
         super.onClose();
     }
 
@@ -145,6 +134,10 @@ public class ClassSelectionScreen extends Screen {
     }
     
     public DCClass getSelectedClass() {
+        if (classes == null) {
+            onClose();
+            return null;
+        }
         if (classes.size() == 0) return null;
         return classes.get(page);
     }
@@ -160,7 +153,9 @@ public class ClassSelectionScreen extends Screen {
     
     private void reloadText() {
         description.clear();
-        String str = new TranslatableComponent(getSelectedClass().getTranslationKey() + ".desc").getString();
+        DCClass clazz = getSelectedClass();
+        if (clazz == null) return;
+        String str = new TranslatableComponent(clazz.getTranslationKey() + ".desc").getString();
         int position = 0;
         while (position < str.length()) {
             if (description.size() >= 7) break;
@@ -193,13 +188,21 @@ public class ClassSelectionScreen extends Screen {
     private void reloadSlots() {
         slots.clear();
         DCClass clazz = getSelectedClass();
+        if (clazz == null) return;
+        List <AttributeEntry> attributes = clazz.getAttributes();
+        for (int i = 0; i < attributes.size(); i++) {
+            AttributeEntry attribute = attributes.get(i);
+            int width = minecraft.font.width(attribute.getText()) + 11;
+            slots.add(new AttributeSlot(attribute, width, leftPos + 11 + (int)(((float)((guiWidth - 11) * i) + 0.5f) / (float)attributes.size()), topPos + 11));
+        }
         List<ItemEntry> items = clazz.getItems();
         int itemRows = (int)(((float)items.size() -1) / 3f) + 1;
         itemWidth = Math.max(itemRows * 18, minecraft.font.width(new TranslatableComponent("text.dcclasses.items"))) + 8;
         itemHeight = 21 + (int)Math.ceil((float)items.size()/(float)itemRows) * 18;
         itemX = leftPos - 10 - (int)((float)itemWidth / 2f);
         for (int i = 0; i < items.size(); i++) slots.add(new ItemSlot(items.get(i),leftPos - 26 + itemRows * 8 - i % itemRows * 18, topPos + 34 + (i / itemRows) * 18));
-        List<Skill> skills = clazz.getSkills();
+        if (!ModList.get().isLoaded("epicfight")) return;
+        List<String> skills = EpicFightIntegration.getVerifiedSkills(clazz);
         int skillRows = (int)((float)(skills.size() -1) / 3f) + 1;
         skillWidth = Math.max(skillRows * 18, minecraft.font.width(new TranslatableComponent("text.dcclasses.skills"))) + 8;
         skillHeight = 21 + (int)Math.ceil((float)skills.size()/(float)skillRows) * 18;

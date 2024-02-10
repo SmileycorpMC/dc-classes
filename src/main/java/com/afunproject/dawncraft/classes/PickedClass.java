@@ -1,6 +1,7 @@
 package com.afunproject.dawncraft.classes;
 
 import com.afunproject.dawncraft.classes.data.DCClass;
+import com.afunproject.dawncraft.classes.integration.epicfight.EpicFightIntegration;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -8,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.ModList;
 
 public interface PickedClass {
 
@@ -60,7 +62,7 @@ public interface PickedClass {
         @Override
         public void applyEffect(ServerPlayer player, boolean addItems) {
             if (clazz == null) return;
-            clazz.applySkills(player);
+            if (ModList.get().isLoaded("epicfight")) EpicFightIntegration.applySkills(clazz, player);
             clazz.applyStatModifiers(player);
             if (addItems) clazz.addItems(player);
             ClassesLogger.logInfo("Set player " + player.getDisplayName().getString() + " to class " + clazz);

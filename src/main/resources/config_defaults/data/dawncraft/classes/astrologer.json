@@ -1,0 +1,30 @@
+{
+	"index": 5,
+	"attributes": {
+		"generic.max_health": 16,
+		"paraglider:max_stamina": 24
+	},
+	"starting_skills": [
+		"epicfight:roll",
+		"wom:ender_step"
+	],
+	"items": [
+		{
+			"id": "irons_spellbooks:wandering_magician_helmet",
+			"slot": "head"
+		},
+		{
+			"id": "irons_spellbooks:wandering_magician_chestplate",
+			"slot": "chest"
+		},
+		{
+			"id": "irons_spellbooks:iron_spell_book",
+			"nbt": "{ISB_spellbook:{spells:[{slot:0,level:1,id:4},{slot:1,level:1,id:7},{slot:2,level:1,id:16}],activeSpellIndex:0,spellSlots:5}}"			
+		},
+		{
+			"id": "minecraft:bread",
+			"count": 6
+		}
+	],
+	"animation": "wom:biped/skill/enderstep_forward"
+}

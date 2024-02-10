@@ -101,6 +101,7 @@ dependencies {
 	implementation fg.deobf('curse.maven:paragliders-289240:4478246')
 	implementation fg.deobf('curse.maven:atlas-463826:4567244')
 	compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.18.2-5.0.9.1:api")
+	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 // Example for how to get properties into the manifest for reading at runtime.

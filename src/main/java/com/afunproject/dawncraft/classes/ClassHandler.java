@@ -23,6 +23,7 @@ public class ClassHandler {
 
     public static void addClass(DCClass clazz) {
         CLASSES.put(clazz.getRegistryName(), clazz);
+        ClassesLogger.logInfo("Registered class clazz " + clazz);
     }
 
     public static DCClass getClass(ResourceLocation loc) {
