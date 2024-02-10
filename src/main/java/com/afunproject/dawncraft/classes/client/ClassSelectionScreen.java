@@ -6,7 +6,7 @@ import com.afunproject.dawncraft.classes.data.DCClass;
 import com.afunproject.dawncraft.classes.data.ItemEntry;
 import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
 import com.afunproject.dawncraft.classes.integration.epicfight.EpicFightIntegration;
-import com.afunproject.dawncraft.classes.integration.epicfight.client.EpicFightClientIntegration;
+import com.afunproject.dawncraft.classes.integration.epicfight.client.EpicFightPlayerRenderer;
 import com.afunproject.dawncraft.classes.integration.epicfight.client.SkillSlot;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.PickClassMessage;
@@ -41,6 +41,7 @@ public class ClassSelectionScreen extends Screen {
     private int page = 0;
     private final List<DCClass> classes;
     private final RemotePlayer player;
+    private final EpicFightPlayerRenderer playerRenderer;
     private final List<Button> buttons = Lists.newArrayList();
     private int i;
     protected int leftPos;
@@ -53,6 +54,7 @@ public class ClassSelectionScreen extends Screen {
         super(new TranslatableComponent("title.dcclasses.screen"));
         Minecraft minecraft = Minecraft.getInstance();
         player = new RemotePlayer(minecraft.level, minecraft.player.getGameProfile());
+        playerRenderer = ModList.get().isLoaded("epicfight") ? new EpicFightPlayerRenderer(player) : null;
         if (cache.isEmpty()) {
             ClassesLogger.logError("no enabled classes ", new Exception());
             classes = null;
@@ -93,7 +95,7 @@ public class ClassSelectionScreen extends Screen {
         //player
         int entityX = leftPos + guiWidth / 2;
         int entityY = topPos + guiHeight / 2 + 13;
-        if (ModList.get().isLoaded("epicfight")) EpicFightClientIntegration.renderPlayer(poseStack, entityX, entityY, player, partialTicks, clazz.getAnimation());
+        if (playerRenderer != null) playerRenderer.render(poseStack, entityX, entityY, partialTicks, clazz.getAnimation());
         else InventoryScreen.renderEntityInInventory(entityX, entityY, 38, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
         //items, skills and attributes
         drawBox(poseStack, itemX, topPos + 17, itemWidth, itemHeight);

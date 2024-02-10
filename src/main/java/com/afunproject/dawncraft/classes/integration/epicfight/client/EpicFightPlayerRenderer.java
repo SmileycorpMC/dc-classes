@@ -1,5 +1,6 @@
 package com.afunproject.dawncraft.classes.integration.epicfight.client;
 
+import com.afunproject.dawncraft.classes.ClassesLogger;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
@@ -11,18 +12,36 @@ import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import yesman.epicfight.api.animation.types.BasicAttackAnimation;
+import yesman.epicfight.api.animation.types.EntityState;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.client.renderer.patched.entity.PPlayerRenderer;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.main.EpicFightMod;
 
-public class EpicFightClientIntegration {
+public class EpicFightPlayerRenderer {
     
-    private static final AbstractClientPlayerPatch<RemotePlayer> ANIMATOR = new AbstractClientPlayerPatch<RemotePlayer>();
+    private final RemotePlayer player;
+    private final AnimationPlayerPatch playerpatch;
+    private final PPlayerRenderer renderer = new PPlayerRenderer();
     
-    public static void renderPlayer(PoseStack posestack, int x, int y, RemotePlayer player, float partialTicks, String animation) {
+    public EpicFightPlayerRenderer(RemotePlayer player) {
+        this.player = player;
+        playerpatch = new AnimationPlayerPatch(player);
+    }
+    
+    public void render(PoseStack posestack, int x, int y, float partialTicks, String animation) {
+        ClientAnimator animator = playerpatch.getClientAnimator();
+        StaticAnimation anim = EpicFightMod.getInstance().animationManager.findAnimationByPath(animation);
+        if (playerpatch.getCurrentAnimation() != anim) {
+            animator.resetMotion();
+            animator.playAnimation(anim, 0.5f);
+            anim.begin(playerpatch);
+        }
+        playerpatch.update();
         Minecraft mc = Minecraft.getInstance();
         EntityRenderDispatcher renderDispatcher = mc.getEntityRenderDispatcher();
-        float f1 = (float)Math.atan((double)(0 / 40.0F));
+        float f1 = (float)Math.atan(0 / 40.0F);
         posestack.pushPose();
         posestack.translate(x, y, 1050.0D);
         posestack.scale(1.0F, 1.0F, -1.0F);
@@ -38,9 +57,8 @@ public class EpicFightClientIntegration {
         posestack.mulPose(quaternion);
         MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
         renderDispatcher.setRenderShadow(false);
-        PPlayerRenderer renderer = new PPlayerRenderer();
         RenderSystem.runAsFancy(() ->
-        renderer.render(player, EpicFightCapabilities.getEntityPatch(mc.player, AbstractClientPlayerPatch.class),
+        renderer.render(player, playerpatch,
                 (LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>) renderDispatcher.getRenderer(player),
                 buffers, posestack, 15728880, partialTicks));
         buffers.endBatch();
