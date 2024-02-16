@@ -13,6 +13,7 @@ public class AttributeEntry {
 
     private final Attribute attribute;
     private final double value;
+    private MutableComponent text;
     
     public AttributeEntry(ResourceLocation attribute, double value) throws Exception {
         this.attribute = ForgeRegistries.ATTRIBUTES.getValue(attribute);
@@ -38,7 +39,8 @@ public class AttributeEntry {
     }
     
     public MutableComponent getText() {
-        return AttributeProperties.INSTANCE.getText(attribute, value);
+        if (text == null) text = AttributeProperties.INSTANCE.getText(attribute, value);
+        return text;
     }
     
     public TextColor getTextColour() {

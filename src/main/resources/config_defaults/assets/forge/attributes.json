@@ -1,0 +1,14 @@
+{
+	"forge:entity_gravity": {
+		"base_value": 0.08,
+		"display_mode": "PERCENTAGE"
+	},
+	"forge:reach_distance": {
+		"base_value": 5,
+		"display_mode": "PERCENTAGE"
+	},
+	"forge:swim_speed": {
+		"base_value": 0.1,
+		"display_mode": "DECIMAL"
+	}
+}

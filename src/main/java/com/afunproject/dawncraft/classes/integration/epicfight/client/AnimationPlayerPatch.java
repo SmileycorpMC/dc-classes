@@ -4,7 +4,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
-import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.gameasset.Armatures;
@@ -34,7 +33,7 @@ public class AnimationPlayerPatch extends AbstractClientPlayerPatch<AbstractClie
         
         @Override
         public void poseTick() {
-            Pose currentPose = this.getComposedLayerPose(1.0F);
+            Pose currentPose = getComposedLayerPose(1.0F);
             entitypatch.getArmature().setPose(currentPose);
         }
         

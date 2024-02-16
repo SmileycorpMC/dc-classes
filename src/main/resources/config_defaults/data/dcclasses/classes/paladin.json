@@ -1,8 +1,10 @@
 {
 	"index": 2,
 	"attributes": {
-		"generic.max_health": 32,
-		"paraglider:max_stamina": 20
+		"generic.max_health": 26,
+		"generic.armor": 2,
+		"generic.movement_speed": 0.06,
+		"paraglider:max_stamina": 10
 	},
 	"starting_skills": [
 		"epicfight:roll",
@@ -10,19 +12,17 @@
 	],
 	"items": [
 		{
-			"id": "minecraft:chainmail_chestplate",
-			"slot": "chest"
-		},
-		{
 			"id": "minecraft:shield",
 			"slot": "offhand"
 		},
 		{
-			"id": "magistuarmory:wood_morgenstern"
+			"id": "minecraft:stone_sword",
+			"slot": "mainhand"
 		},
 		{
 			"id": "minecraft:bread",
-			"count": 6
+			"count": 6,
+			"slot": "mainhand"
 		}
 	],
 	"animation": "epicfight:biped/combat/sword_auto1"

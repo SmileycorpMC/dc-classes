@@ -21,11 +21,12 @@ public class DefaultDataGenerator {
     public static boolean tryGenerateDataFiles() {
         if (CONFIG_FOLDER.toFile().exists()) return false;
         copyFile("pack.mcmeta");
-        copyFile("assets/dawncraft/lang/en_us.json");
+        copyFile("assets/dcclasses/lang/en_us.json");
+        copyFile("assets/forge/attributes.json");
+        copyFile("assets/forge/textures/attribute/entity_gravity.png");
+        copyFile("assets/forge/textures/attribute/reach_distance.png");
+        copyFile("assets/forge/textures/attribute/swim_speed.png");
         copyFile("assets/minecraft/attributes.json");
-        copyFile("assets/minecraft/textures/attribute/forge.entity_gravity.png");
-        copyFile("assets/minecraft/textures/attribute/forge.reach_distance.png");
-        copyFile("assets/minecraft/textures/attribute/forge.swim_speed.png");
         copyFile("assets/minecraft/textures/attribute/generic.armor.png");
         copyFile("assets/minecraft/textures/attribute/generic.armor_toughness.png");
         copyFile("assets/minecraft/textures/attribute/generic.attack_damage.png");
@@ -37,14 +38,15 @@ public class DefaultDataGenerator {
         copyFile("assets/minecraft/textures/attribute/generic.movement_speed.png");
         copyFile("assets/paraglider/attributes.json");
         copyFile("assets/paraglider/textures/attribute/max_stamina.png");
-        copyFile("data/dawncraft/classes/astrologer.json");
-        copyFile("data/dawncraft/classes/berserker.json");
-        copyFile("data/dawncraft/classes/brawler.json");
-        copyFile("data/dawncraft/classes/lancer.json");
-        copyFile("data/dawncraft/classes/roamer.json");
-        copyFile("data/dawncraft/classes/ronin.json");
-        copyFile("data/dawncraft/classes/tank.json");
-        copyFile("data/dawncraft/classes/warrior.json");
+        copyFile("data/dcclasses/classes/agriculturalist.json");
+        copyFile("data/dcclasses/classes/berserker.json");
+        copyFile("data/dcclasses/classes/marauder.json");
+        copyFile("data/dcclasses/classes/miner.json");
+        copyFile("data/dcclasses/classes/paladin.json");
+        copyFile("data/dcclasses/classes/ranger.json");
+        copyFile("data/dcclasses/classes/scout.json");
+        copyFile("data/dcclasses/classes/speedrunner.json");
+        copyFile("data/dcclasses/classes/warrior.json");
         return true;
     }
     

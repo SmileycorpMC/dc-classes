@@ -1,0 +1,27 @@
+{
+	"index": 7,
+	"attributes": {
+		"generic.max_health": 20,
+		"paraglider:max_stamina": 28
+	},
+	"starting_skills": [],
+	"items": [
+		{
+			"id": "minecraft:stone_axe",
+			"slot": "mainhand"
+		},
+		{
+			"id": "minecraft:flint_and_steel",
+			"slot": "mainhand"
+		},
+		{
+			"id": "minecraft:shears",
+			"slot": "mainhand"
+		},
+		{
+			"id": "minecraft:water_bucket",
+			"slot": "offhand"
+		}
+	],
+	"animation": "epicfight:biped/living/run"
+}

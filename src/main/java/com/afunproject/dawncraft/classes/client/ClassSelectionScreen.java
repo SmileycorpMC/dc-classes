@@ -98,10 +98,14 @@ public class ClassSelectionScreen extends Screen {
         if (playerRenderer != null) playerRenderer.render(poseStack, entityX, entityY, partialTicks, clazz.getAnimation());
         else InventoryScreen.renderEntityInInventory(entityX, entityY, 38, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
         //items, skills and attributes
-        drawBox(poseStack, itemX, topPos + 17, itemWidth, itemHeight);
-        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.items"), leftPos - 10, topPos + 21, 0xFFFFFF);
-        drawBox(poseStack, skillX, topPos + 17, skillWidth, skillHeight);
-        drawCenteredString(poseStack, minecraft.font,  new TranslatableComponent("text.dcclasses.skills"), leftPos + guiWidth + 10, topPos + 21, 0xFFFFFF);
+        if (itemHeight > 0) {
+            drawBox(poseStack, itemX, topPos + 17, itemWidth, itemHeight);
+            drawCenteredString(poseStack, minecraft.font, new TranslatableComponent("text.dcclasses.items"), leftPos - 10, topPos + 21, 0xFFFFFF);
+        }
+        if (skillHeight > 0) {
+            drawBox(poseStack, skillX, topPos + 17, skillWidth, skillHeight);
+            drawCenteredString(poseStack, minecraft.font, new TranslatableComponent("text.dcclasses.skills"), leftPos + guiWidth + 10, topPos + 21, 0xFFFFFF);
+        }
         ClassSlot hoveredSlot = null;
         for (ClassSlot slot : slots) {
             slot.render(poseStack, mouseX, mouseY, partialTicks);
@@ -195,19 +199,19 @@ public class ClassSelectionScreen extends Screen {
         for (int i = 0; i < attributes.size(); i++) {
             AttributeEntry attribute = attributes.get(i);
             int width = minecraft.font.width(attribute.getText()) + 11;
-            slots.add(new AttributeSlot(attribute, width, leftPos + 11 + (int)(((float)((guiWidth - 11) * i) + 0.5f) / (float)attributes.size()), topPos + 11));
+            slots.add(new AttributeSlot(attribute, width, leftPos + 11 + (int)(((float)(guiWidth - 11) * (i + 0.25f) - width * 0.5f) / (float)attributes.size()), topPos + 11));
         }
         List<ItemEntry> items = clazz.getItems();
         int itemRows = (int)(((float)items.size() -1) / 3f) + 1;
         itemWidth = Math.max(itemRows * 18, minecraft.font.width(new TranslatableComponent("text.dcclasses.items"))) + 8;
-        itemHeight = 21 + (int)Math.ceil((float)items.size()/(float)itemRows) * 18;
+        itemHeight = items.isEmpty() ? 0 : 21 + (int)Math.ceil((float)items.size()/(float)itemRows) * 18;
         itemX = leftPos - 10 - (int)((float)itemWidth / 2f);
         for (int i = 0; i < items.size(); i++) slots.add(new ItemSlot(items.get(i),leftPos - 26 + itemRows * 8 - i % itemRows * 18, topPos + 34 + (i / itemRows) * 18));
         if (!ModList.get().isLoaded("epicfight")) return;
         List<String> skills = EpicFightIntegration.getVerifiedSkills(clazz);
         int skillRows = (int)((float)(skills.size() -1) / 3f) + 1;
         skillWidth = Math.max(skillRows * 18, minecraft.font.width(new TranslatableComponent("text.dcclasses.skills"))) + 8;
-        skillHeight = 21 + (int)Math.ceil((float)skills.size()/(float)skillRows) * 18;
+        skillHeight = skills.isEmpty() ? 0 : 21 + (int)Math.ceil((float)skills.size()/(float)skillRows) * 18;
         skillX = leftPos + guiWidth + 10 - (int)((float)skillWidth / 2f);
         for (int i = 0; i < skills.size(); i++) slots.add(new SkillSlot(skills.get(i), leftPos + guiWidth + 10 - skillRows * 8 + i % skillRows * 18, topPos + 34 + (i / skillRows) * 18));
     }

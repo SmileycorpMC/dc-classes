@@ -73,9 +73,18 @@ public class AttributeProperties extends SimplePreparableReloadListener<List<Jso
         if (properties.containsKey(attribute)) {
             AttributeProperty property = properties.get(attribute);
             double scaledValue = value / property.getBase();
-            return new TextComponent(property.getMode() == AttributeProperty.DisplayMode.PERCENTAGE ? (String.format("%.2f", scaledValue * 100f) + "%") : String.format("%.2f", scaledValue));
+            return new TextComponent(property.getMode() == AttributeProperty.DisplayMode.PERCENTAGE ? (format("%.2f", scaledValue * 100f) + "%") : format("%.2f", scaledValue));
         }
-        return new TextComponent(String.format("%.2f",value));
+        return new TextComponent(format("%.2f",value));
+    }
+    
+    private String format(String format, double value) {
+        String string = String.format(format, value);
+        int i;
+        for (i = string.length(); i >= 0; i--) if (string.charAt(i - 1) != '0') break;
+        if (i < string.length()) string = string.substring(0, i);
+        if (string.endsWith(".")) string = string.substring(0, string.length() - 1);
+        return string;
     }
     
     public TextColor getTextColour(Attribute attribute) {
