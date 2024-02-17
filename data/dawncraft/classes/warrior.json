@@ -1,7 +1,9 @@
 {
 	"index": 0,
-	"health": 22,
-	"stamina": 32,
+	"attributes": {
+		"generic.max_health": 22,
+		"paraglider:max_stamina": 32
+	},
 	"starting_skills": [
 		"epicfight:roll"
 	],
@@ -11,11 +13,12 @@
 			"slot": "chest"
 		},
 		{
-			"id": "minecraft:wooden_sword"
+			"id": "minecraft:stone_sword"
 		},
 		{
 			"id": "minecraft:bread",
 			"count": 6
 		}
-	]
+	],
+	"animation": "epicfight:biped/combat/sword_auto3"
 }

@@ -1,7 +1,9 @@
 {
 	"index": 4,
-	"health": 17,
-	"stamina": 42,
+	"attributes": {
+		"generic.max_health": 17,
+		"paraglider:max_stamina": 42
+	},
 	"starting_skills": [
 		"epicfight:roll",
 		"epicfight:emergency_escape"
@@ -26,5 +28,6 @@
 			"id": "minecraft:bread",
 			"count": 10
 		}
-	]
+	],
+	"animation": "epicfight:biped/combat/bow_shot_mid"
 }

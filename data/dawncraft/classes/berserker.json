@@ -1,7 +1,9 @@
 {
 	"index": 1,
-	"health": 20,
-	"stamina": 28,
+	"attributes": {
+		"generic.max_health": 20,
+		"paraglider:max_stamina": 28
+	},
 	"starting_skills": [
 		"epicfight:roll",
 		"epicfight:berserker",
@@ -15,5 +17,6 @@
 			"id": "minecraft:bread",
 			"count": 6
 		}
-	]
+	],
+	"animation": "epicfight:biped/combat/greatsword_auto1"
 }

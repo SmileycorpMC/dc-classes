@@ -1,11 +1,13 @@
 {
 	"index": 6,
-	"health": 18,
-	"stamina": 28,
+	"attributes": {
+		"generic.max_health": 18,
+		"paraglider:max_stamina": 28
+	},
 	"starting_skills": [
 		"epicfight:roll",
 		"epicfight:guard",
-		"wom:pain_retribution"
+		"wom:latent_retribution"
 	],
 	"items": [
 		{
@@ -19,5 +21,6 @@
 			"id": "minecraft:bread",
 			"count": 6
 		}
-	]
+	],
+	"animation": "epicfight:biped/combat/uchigatana_auto1"
 }

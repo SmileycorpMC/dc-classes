@@ -1,7 +1,9 @@
 {
 	"index": 2,
-	"health": 32,
-	"stamina": 24,
+	"attributes": {
+		"generic.max_health": 32,
+		"paraglider:max_stamina": 20
+	},
 	"starting_skills": [
 		"epicfight:roll",
 		"epicfight:endurance"
@@ -16,11 +18,12 @@
 			"slot": "offhand"
 		},
 		{
-			"id": "magistuarmory:stone_morgenstern"
+			"id": "magistuarmory:wood_morgenstern"
 		},
 		{
 			"id": "minecraft:bread",
 			"count": 6
 		}
-	]
+	],
+	"animation": "epicfight:biped/combat/sword_auto1"
 }
