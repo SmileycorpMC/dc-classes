@@ -1,0 +1,42 @@
+{
+	"index": 7,
+	"attributes": {
+		"generic.max_health": 24,
+		"paraglider:max_stamina": 28
+	},
+	"starting_skills": [
+		"epicfight:emergency_escape"
+	],
+	"items": [
+		{
+			"id": "minecraft:diamond_hoe",
+			"slot": "mainhand"
+		},
+		{
+			"id": "minecraft:wheat_seeds",
+			"count": 8,
+			"slot": "mainhand"
+		},
+		{
+			"id": "minecraft:potato",
+			"count": 8,
+			"slot": "mainhand"
+		},
+		{
+			"id": "minecraft:carrot",
+			"count": 8,
+			"slot": "mainhand"
+		},
+		{
+			"id": "minecraft:bone_meal",
+			"count": 16,
+			"slot": "mainhand"
+		},
+		{
+			"id": "minecraft:water_bucket",
+			"count": 1,
+			"slot": "mainhand"
+		}
+	],
+	"animation": "epicfight:biped/living/kneel"
+}

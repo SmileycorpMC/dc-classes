@@ -1,7 +1,8 @@
 {
 	"index": 4,
 	"attributes": {
-		"generic.max_health": 17,
+		"generic.max_health": 16,
+		"generic.movement_speed": 0.11,
 		"paraglider:max_stamina": 42
 	},
 	"starting_skills": [
@@ -10,23 +11,18 @@
 	],
 	"items": [
 		{
-			"id": "jet_and_elias_armors:highlander_set_chestplate",
-			"slot": "chest"
-		},
-		{
-			"id": "minecraft:bow"
-		},
-		{
-			"id": "nyfsquiver:basic_quiver",
-			"slot": "curios:quiver"
+			"id": "minecraft:bow",
+			"slot": "mainhand"
 		},
 		{
 			"id": "minecraft:arrow",
-			"count": 64
+			"count": 16,
+			"slot": "mainhand"
 		},
 		{
 			"id": "minecraft:bread",
-			"count": 10
+			"count": 10,
+			"slot": "mainhand"
 		}
 	],
 	"animation": "epicfight:biped/combat/bow_shot_mid"
