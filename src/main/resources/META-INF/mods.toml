@@ -4,7 +4,7 @@ license="GNU LESSER GENERAL PUBLIC LICENSE Version 2.1"
 
 [[mods]]
 modId="dcclasses"
-version="1.1.3a"
+version="1.1.3b"
 displayName="DawnCraft Classes"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/dc-classes"
 updateJSONURL="https://raw.githubusercontent.com/SmileycorpMC/dc-classes/1.18.2/update.json"
@@ -15,6 +15,6 @@ description="Adds a dynamic configurable classes system"
 [[dependencies.dcclasses]]
 modId="atlaslib"
 mandatory=true
-versionRange=""
+versionRange="[1.1.7,)"
 ordering="NONE"
 side="BOTH"

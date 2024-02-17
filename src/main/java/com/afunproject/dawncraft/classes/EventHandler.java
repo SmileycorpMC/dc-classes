@@ -51,7 +51,7 @@ public class EventHandler {
             NetworkHandler.NETWORK_INSTANCE.sendTo(new OpenClassGUIMessage(),
                     ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             cap.setGUIOpen(true);
-        }
+        } else cap.applyStatModifiers((ServerPlayer) player);
     }
 
     /*@SubscribeEvent

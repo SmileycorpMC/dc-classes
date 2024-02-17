@@ -28,7 +28,7 @@ repositories {
 }
 
 
-version = '1.1.3a'
+version = '1.1.3b'
 group = 'com.afunproject.dawncraft.classes' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'DC-Classes'
 
@@ -99,6 +99,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.18-38.0.14'
 	implementation fg.deobf('curse.maven:epicfight-405076:4861783')
 	implementation fg.deobf('curse.maven:paragliders-289240:4478246')
+	implementation fg.deobf('curse.maven:paraglidersdbl-933729:4874431')
 	implementation fg.deobf('curse.maven:atlas-463826:4567244')
 	compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.18.2-5.0.9.1:api")
 	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
