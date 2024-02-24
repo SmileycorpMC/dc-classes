@@ -28,6 +28,8 @@ public interface PickedClass {
     void setGUIOpen(boolean GUIOpen);
     
     boolean isGUIOpen();
+    
+    boolean hasStatModifiers();
 
     CompoundTag save();
 
@@ -38,6 +40,7 @@ public interface PickedClass {
         private DCClass clazz;
         private boolean hasEffect;
         private boolean GUIOpen;
+        private boolean hasStatModifiers;
 
         @Override
         public DCClass getDCClass() {
@@ -74,6 +77,7 @@ public interface PickedClass {
             if (clazz == null) return;
             clazz.applyStatModifiers(player);
             hasEffect = true;
+            hasStatModifiers = true;
         }
         
         @Override
@@ -85,7 +89,12 @@ public interface PickedClass {
         public boolean isGUIOpen() {
             return GUIOpen;
         }
-
+    
+        @Override
+        public boolean hasStatModifiers() {
+            return hasStatModifiers;
+        }
+    
         @Override
         public CompoundTag save() {
             CompoundTag tag = new CompoundTag();

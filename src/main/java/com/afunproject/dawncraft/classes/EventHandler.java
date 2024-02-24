@@ -15,6 +15,7 @@ import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -51,10 +52,10 @@ public class EventHandler {
             NetworkHandler.NETWORK_INSTANCE.sendTo(new OpenClassGUIMessage(),
                     ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             cap.setGUIOpen(true);
-        } else cap.applyStatModifiers((ServerPlayer) player);
+        }
     }
 
-    /*@SubscribeEvent
+    @SubscribeEvent
     public void tick(LivingEvent.LivingUpdateEvent event) {
         if (event.getEntity() == null) return;
         Entity player = event.getEntity();
@@ -62,8 +63,8 @@ public class EventHandler {
         LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS);
         if (!optional.isPresent()) return;
         PickedClass cap = optional.orElseGet(null);
-        if (cap.hasPicked() &! cap.hasEffect()) cap.applyEffect((ServerPlayer) player, true);
-    }*/
+        if (cap.hasPicked() &! cap.hasStatModifiers()) cap.applyStatModifiers((ServerPlayer) player);
+    }
     
     @SubscribeEvent
     public void damage(LivingAttackEvent event) {
@@ -88,7 +89,6 @@ public class EventHandler {
         if (optionalOld.isPresent() && optional.isPresent()) {
             PickedClass cap = optional.orElseGet(null);
             cap.load(optionalOld.orElseGet(null).save());
-            cap.applyStatModifiers((ServerPlayer) player);
         }
     }
 

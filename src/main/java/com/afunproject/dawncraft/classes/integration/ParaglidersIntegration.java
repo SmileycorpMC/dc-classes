@@ -20,11 +20,12 @@ public class ParaglidersIntegration {
     public static void apply(Player player, double value) {
         double max = 0;
         try {
-            startingStamina = ModCfg.class.getMethod("startingStamina");
+            if (startingStamina == null) startingStamina = ModCfg.class.getMethod("startingStamina");
             max = (double) startingStamina.invoke(null);
-        } catch (Exception e1) {
-            ClassesLogger.logError("error adding stamina ", e1);
+        } catch (Exception e) {
+            ClassesLogger.logError("error adding stamina ", e);
         }
+        ClassesLogger.logInfo("Attribute is paraglider:max_stamina, removing " + max + " points as default.");
         player.getAttribute(Contents.MAX_STAMINA.get()).setBaseValue(value - max);
     }
     
