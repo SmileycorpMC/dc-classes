@@ -29,5 +29,6 @@
 			"slot": "offhand"
 		}
 	],
-	"animation": "epicfight:biped/living/sneak"
+	"animation": "epicfight:biped/living/sneak",
+	"offset": [0, 0]
 }

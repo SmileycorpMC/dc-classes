@@ -23,5 +23,6 @@
 			"slot": "offhand"
 		}
 	],
-	"animation": "epicfight:biped/living/run"
+	"animation": "epicfight:biped/living/run",
+	"offset": [0, 0]
 }

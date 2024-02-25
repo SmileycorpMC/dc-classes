@@ -22,5 +22,6 @@
 			"count": 6
 		}
 	],
-	"animation": "epicfight:biped/combat/axe_auto1"
+	"animation": "epicfight:biped/combat/axe_auto1",
+	"offset": [0, 0]
 }

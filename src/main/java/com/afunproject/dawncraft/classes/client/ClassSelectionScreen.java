@@ -95,7 +95,7 @@ public class ClassSelectionScreen extends Screen {
         //player
         int entityX = leftPos + guiWidth / 2;
         int entityY = topPos + guiHeight / 2 + 13;
-        if (playerRenderer != null) playerRenderer.render(poseStack, entityX, entityY, partialTicks, clazz.getAnimation());
+        if (playerRenderer != null) playerRenderer.render(poseStack, entityX + clazz.getXOffset(), entityY + clazz.getYOffset(), partialTicks, clazz.getAnimation());
         else InventoryScreen.renderEntityInInventory(entityX, entityY, 38, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
         //items, skills and attributes
         if (itemHeight > 0) {

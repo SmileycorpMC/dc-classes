@@ -38,5 +38,6 @@
 			"slot": "mainhand"
 		}
 	],
-	"animation": "epicfight:biped/living/kneel"
+	"animation": "epicfight:biped/living/kneel",
+	"offset": [0, 0]
 }

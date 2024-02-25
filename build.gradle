@@ -28,7 +28,7 @@ repositories {
 }
 
 
-version = '1.1.3c'
+version = '1.1.4'
 group = 'com.afunproject.dawncraft.classes' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'DC-Classes'
 

@@ -25,5 +25,6 @@
 			"slot": "mainhand"
 		}
 	],
-	"animation": "epicfight:biped/combat/sword_auto1"
+	"animation": "epicfight:biped/combat/sword_auto1",
+	"offset": [0, 0]
 }
