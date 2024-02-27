@@ -2,7 +2,7 @@
 	"generic.max_health": {
 		"base_value": 2,
 		"display_mode": "DECIMAL",
-		"text_colour": "#AA0000"
+		"text_colour": "dark_red"
 	},
 	"generic.armor": {
 		"base_value": 2,
