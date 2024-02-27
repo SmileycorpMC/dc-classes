@@ -26,5 +26,6 @@
 			"count": 6
 		}
 	],
-	"animation": "wom:biped/skill/enderstep_forward"
+	"animation": "wom:biped/skill/enderstep_forward",
+	"offset": [0, -10]
 }
