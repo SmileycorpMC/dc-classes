@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 public class ClassSelectionScreen extends Screen {
     
-    private static final int TEXT_WIDTH = 31;
+    private static final int TEXT_WIDTH = 40;
     protected int guiWidth = 168;
     protected int guiHeight = 180;
     private int page = 0;
@@ -43,7 +43,6 @@ public class ClassSelectionScreen extends Screen {
     private final RemotePlayer player;
     private final EpicFightPlayerRenderer playerRenderer;
     private final List<Button> buttons = Lists.newArrayList();
-    private int i;
     protected int leftPos;
     protected int topPos;
     protected final List<Component> description = Lists.newArrayList();
@@ -166,6 +165,7 @@ public class ClassSelectionScreen extends Screen {
         while (position < str.length()) {
             if (description.size() >= 7) break;
             int size = Math.min(TEXT_WIDTH, str.length() - position);
+            while (Minecraft.getInstance().font.width(str.substring(position, position + size)) > 169) size--;
             int newPos = position + size;
             if (str.substring(position, newPos).contains("\n")) {
                 int i = str.substring(position, newPos).indexOf("\n");
@@ -173,7 +173,7 @@ public class ClassSelectionScreen extends Screen {
                 position = position + i + 1;
                 continue;
             }
-            if (size < TEXT_WIDTH || newPos >= str.length()) {
+            if (newPos >= str.length()) {
                 description.add(new TextComponent(str.substring(position)));
                 break;
             }
