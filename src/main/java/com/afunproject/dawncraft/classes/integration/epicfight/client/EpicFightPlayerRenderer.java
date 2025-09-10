@@ -32,27 +32,27 @@ public class EpicFightPlayerRenderer {
     
     public void render(PoseStack posestack, float x, float y, float partialTicks, String animation) {
         ClientAnimator animator = playerpatch.getClientAnimator();
-        StaticAnimation anim = AnimationManager.getInstance().byKey(new ResourceLocation(animation));
+        AnimationManager.AnimationAccessor<StaticAnimation> anim = AnimationManager.getInstance().byKey(new ResourceLocation(animation));
         if (anim == null) anim = Animations.BIPED_IDLE;
         if (playerpatch.getCurrentAnimation() != anim) {
-            animator.resetMotion();
+            animator.resetMotion(true);
             animator.playAnimation(anim, 0.5f);
-            anim.begin(playerpatch);
+            anim.get().begin(playerpatch);
         }
         playerpatch.update();
         Minecraft mc = Minecraft.getInstance();
         EntityRenderDispatcher renderDispatcher = mc.getEntityRenderDispatcher();
-        float f1 = (float)Math.atan(0 / 40.0F);
+        float f1 = (float)Math.atan(0 / 40f);
         posestack.pushPose();
-        posestack.translate(x, y, 1050.0D);
-        posestack.scale(1.0F, 1.0F, -1.0F);
+        posestack.translate(x, y, 1050);
+        posestack.scale(1, 1, -1);
         RenderSystem.applyModelViewMatrix();
         posestack.pushPose();
-        posestack.translate(0.0D, 0.0D, 1000.0D);
+        posestack.translate(0.0D, 0.0D, 1000);
         posestack.scale(38, 38, 38);
-        Quaternionf quaternion = Axis.ZP.rotationDegrees(180.0F);
-        Quaternionf quaternion1 = Axis.XP.rotationDegrees(f1 * 20.0F);
-        Quaternionf quaternion2 = Axis.YP.rotationDegrees(180.0F);
+        Quaternionf quaternion = Axis.ZP.rotationDegrees(180);
+        Quaternionf quaternion1 = Axis.XP.rotationDegrees(f1 * 20f);
+        Quaternionf quaternion2 = Axis.YP.rotationDegrees(180);
         quaternion.mul(quaternion1);
         quaternion.mul(quaternion2);
         posestack.mulPose(quaternion);

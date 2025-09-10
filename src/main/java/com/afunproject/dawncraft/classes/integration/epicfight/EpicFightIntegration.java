@@ -46,7 +46,7 @@ public class EpicFightIntegration {
                 SkillContainer container = patch.getSkill(slot.universalOrdinal());
                 container.setSkill(skill);
                 EpicFightNetworkManager.sendToPlayer(new SPAddLearnedSkill(skill.toString()), player);
-                EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(slot, skill.toString(), SPChangeSkill.State.ENABLE), player);
+                EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(slot, player.getId(), skill), player);
             }
         } else ClassesLogger.logInfo("Patch is null");
     }
