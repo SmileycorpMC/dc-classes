@@ -3,11 +3,14 @@ package com.afunproject.dawncraft.classes.integration.epicfight.client;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.InteractionHand;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.types.ToolHolderArmature;
 
@@ -29,16 +32,17 @@ public class AnimationPlayerPatch extends AbstractClientPlayerPatch<AbstractClie
     
     public void update() {
         animator.tick();
-        getCurrentAnimation().tick(this);
+        getCurrentAnimation().ifPresent(anim -> anim.tick(this));
     }
     
-    public DynamicAnimation getCurrentAnimation() {
+    public AssetAccessor<? extends DynamicAnimation> getCurrentAnimation() {
         return ((Animator)animator).getCurrentAnimation();
     }
     
     public static class Animator extends ClientAnimator {
         public Animator(AnimationPlayerPatch playerPatch) {
             super(playerPatch);
+            livingAnimations.put(LivingMotions.IDLE, Animations.BIPED_IDLE);
         }
         
         @Override
@@ -46,8 +50,8 @@ public class AnimationPlayerPatch extends AbstractClientPlayerPatch<AbstractClie
             playAnimation(getLivingMotion(entitypatch.currentLivingMotion), 0f);
         }
         
-        public DynamicAnimation getCurrentAnimation() {
-            return baseLayer.animationPlayer.getAnimation().get();
+        public AssetAccessor<? extends DynamicAnimation> getCurrentAnimation() {
+            return baseLayer.animationPlayer.getAnimation();
         }
         
     }
