@@ -1,53 +1,115 @@
 package com.afunproject.dawncraft.classes.integration.epicfight.client;
 
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.animation.types.ActionAnimation;
-import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.ClientAnimator;
+import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
+import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
+import yesman.epicfight.api.physics.PhysicsSimulator;
+import yesman.epicfight.api.physics.SimulatableObject;
+import yesman.epicfight.api.physics.SimulationTypes;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.model.armature.types.ToolHolderArmature;
+import yesman.epicfight.world.capabilities.entitypatch.Faction;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.StunType;
 
-public class AnimationPlayerPatch extends AbstractClientPlayerPatch<AbstractClientPlayer> {
+import java.util.Optional;
+
+public class AnimationPlayerPatch extends AbstractClientPlayerPatch implements SimulatableObject, ClothSimulatable {
     
     public AnimationPlayerPatch(RemotePlayer player) {
         original = player;
-        armature = Armatures.getArmatureFor(this);
-        animator = new Animator(this);
-        animator.getVariables().putDefaultSharedVariable(AttackAnimation.ATTACK_TRIED_ENTITIES);
-        animator.getVariables().putDefaultSharedVariable(AttackAnimation.ACTUALLY_HIT_ENTITIES);
-        animator.getVariables().putDefaultSharedVariable(ActionAnimation.ACTION_ANIMATION_COORD);
-        if (armature instanceof ToolHolderArmature toolArmature) {
-            this.setParentJointOfHand(InteractionHand.MAIN_HAND, toolArmature.rightToolJoint());
-            this.setParentJointOfHand(InteractionHand.OFF_HAND, toolArmature.leftToolJoint());
-        }
-        animator.postInit();
-    }
-    
-    public void update() {
-        animator.tick();
-        getCurrentAnimation().ifPresent(anim -> anim.tick(this));
+        armature = Armatures.BIPED.get().deepCopy();
+        animator = new ClassPlayerAnimator(this);
     }
     
     public AssetAccessor<? extends DynamicAnimation> getCurrentAnimation() {
-        return ((Animator)animator).getCurrentAnimation();
+        return ((ClassPlayerAnimator)animator).getCurrentAnimation();
     }
-    
-    public static class Animator extends ClientAnimator {
-        public Animator(AnimationPlayerPatch playerPatch) {
+
+    @Nullable
+    @Override
+    public Animator getSimulatableAnimator() {
+        return animator;
+    }
+
+    @Override
+    public boolean invalid() {
+        return false;
+    }
+
+    @Override
+    public Vec3 getObjectVelocity() {
+        return Vec3.ZERO;
+    }
+
+    @Override
+    public Vec3 getAccurateCloakLocation(float partialFrame) {
+        return null;
+    }
+
+    @Override
+    public Vec3 getAccuratePartialLocation(float partialFrame) {
+        return Vec3.ZERO;
+    }
+
+    @Override
+    public float getAccurateYRot(float partialFrame) {
+        return 0;
+    }
+
+    @Override
+    public float getYRotDelta(float partialFrame) {
+        return 0;
+    }
+
+    @Override
+    public float getScale() {
+        return 1;
+    }
+
+    @Override
+    public float getGravity() {
+        return 9.8f;
+    }
+
+    @Override
+    public void updateMotion(boolean considerInaction) {}
+
+    @Override
+    public Faction getFaction() {
+        return null;
+    }
+
+    @Override
+    public boolean isLogicalClient() {
+        return true;
+    }
+
+    public void update() {
+        entityDecorations.tick();
+        animator.tick();
+    }
+
+    public static class ClassPlayerAnimator extends ClientAnimator {
+
+        public ClassPlayerAnimator(AnimationPlayerPatch playerPatch) {
             super(playerPatch);
             livingAnimations.put(LivingMotions.IDLE, Animations.BIPED_IDLE);
         }
         
         @Override
         public void tick() {
-            playAnimation(getLivingMotion(entitypatch.currentLivingMotion), 0f);
+            AssetAccessor<? extends StaticAnimation> animation = getLivingMotion(entitypatch.currentLivingMotion);
+            if (getCurrentAnimation() != animation) playAnimationInstantly(animation);
         }
         
         public AssetAccessor<? extends DynamicAnimation> getCurrentAnimation() {

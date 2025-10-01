@@ -7,17 +7,16 @@ import com.afunproject.dawncraft.classes.data.DCClass;
 import com.afunproject.dawncraft.classes.data.ItemEntry;
 import com.afunproject.dawncraft.classes.integration.CuriosIntegration;
 import com.afunproject.dawncraft.classes.integration.epicfight.EpicFightIntegration;
-import com.afunproject.dawncraft.classes.integration.epicfight.client.EpicFightPlayerRenderer;
 import com.afunproject.dawncraft.classes.integration.epicfight.client.SkillSlot;
 import com.afunproject.dawncraft.classes.network.NetworkHandler;
 import com.afunproject.dawncraft.classes.network.PickClassMessage;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkDirection;
 
+import javax.swing.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public class ClassSelectionScreen extends Screen {
     private int page = 0;
     private final List<DCClass> classes;
     private final RemotePlayer player;
-    private final EpicFightPlayerRenderer playerRenderer;
+    private PlayerRenderer playerRenderer;
     private final List<AbstractButton> buttons = Lists.newArrayList();
     protected int leftPos;
     protected int topPos;
@@ -51,9 +51,8 @@ public class ClassSelectionScreen extends Screen {
 
     public ClassSelectionScreen(List<DCClass> cache) {
         super(Component.translatable("title.dcclasses.screen"));
-        Minecraft minecraft = Minecraft.getInstance();
-        player = new RemotePlayer(minecraft.level, minecraft.player.getGameProfile());
-        playerRenderer = ModList.get().isLoaded("epicfight") ? new EpicFightPlayerRenderer(player) : null;
+        Minecraft mc = Minecraft.getInstance();
+        player = new RemotePlayer(mc.level, mc.player.getGameProfile());
         if (cache.isEmpty()) {
             ClassesLogger.logError("no enabled classes ", new Exception());
             classes = null;
@@ -77,6 +76,7 @@ public class ClassSelectionScreen extends Screen {
 
     @Override
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+        if (width == 0 || height == 0) return;
         renderDirtBackground(gui);
         gui.blitWithBorder(TEXTURE, leftPos + 10, topPos + 10, 0, 0, 148, 106, 32, 42, 19, 9, 9, 9);
         for(Renderable widget : buttons) widget.render(gui, mouseX, mouseY, partialTicks);
@@ -93,10 +93,12 @@ public class ClassSelectionScreen extends Screen {
             gui.drawCenteredString(minecraft.font,  component, leftPos + guiWidth / 2, topPos + guiHeight / 2 + 52 + i * 9 - offset, 0xFFFFFF);
         }
         //player
-        int entityX = leftPos + guiWidth / 2;
-        int entityY = topPos + guiHeight / 2 + 13;
-        if (playerRenderer != null) playerRenderer.render(gui.pose(), entityX + clazz.getXOffset(), entityY + clazz.getYOffset(), partialTicks, clazz.getAnimation());
-        else InventoryScreen.renderEntityInInventoryFollowsMouse(gui, entityX, entityY, 38, entityX - mouseX, entityY + (player.getEyeHeight()) - mouseY, player);
+        if (playerRenderer == null) {
+            playerRenderer = new PlayerRenderer(player, leftPos + guiWidth / 2, topPos + guiHeight / 2 + 13);
+            playerRenderer.setClass(getSelectedClass());
+            playerRenderer.setClass(getSelectedClass());
+        }
+        playerRenderer.render(gui, mouseX, mouseY, partialTicks);
         //items, skills and attributes
         if (itemHeight > 0) {
             drawBox(gui, itemX, topPos + 17, itemWidth, itemHeight);
@@ -128,6 +130,7 @@ public class ClassSelectionScreen extends Screen {
 
     public void switchPage(int page) {
         this.page = Math.floorMod(page + this.page, classes.size());
+        if (playerRenderer != null) playerRenderer.setClass(getSelectedClass());
         reloadEquipment();
         reloadText();
         reloadSlots();
