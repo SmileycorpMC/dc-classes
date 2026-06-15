@@ -2,6 +2,7 @@ package com.afunproject.dawncraft.classes;
 
 import com.afunproject.dawncraft.classes.event.PickClassEvent;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -20,11 +21,16 @@ public class PickClassCommand {
         LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("pickClass")
                 .requires((commandSource) -> commandSource.hasPermission(1))
                 .then(Commands.argument("player", EntityArgument.players())
-                        .then(Commands.argument("class", ResourceLocationArgument.id()).suggests(ClassHandler::getSuggestions).executes(PickClassCommand::execute)));
+                        .then(Commands.argument("class", ResourceLocationArgument.id()).suggests(ClassHandler::getSuggestions).executes(PickClassCommand::execute)
+                        .then(Commands.argument("add_items", BoolArgumentType.bool()).executes(PickClassCommand::execute))));
         dispatcher.register(command);
     }
 
     public static int execute(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        boolean addItems = true;
+        try {
+            addItems = BoolArgumentType.getBool(ctx, "add_items");
+        } catch (Exception e) {}
         for (ServerPlayer player : EntityArgument.getPlayers(ctx, "player")) {
             LazyOptional<PickedClass> optional = player.getCapability(DCClasses.PICKED_CLASS, null);
             try {
@@ -34,7 +40,7 @@ public class PickClassCommand {
                     PickClassEvent event = new PickClassEvent.Pre(player, ClassHandler.getClass(clazz), true);
                     MinecraftForge.EVENT_BUS.post(event);
                     cap.setDCClass(event.getDCClass());
-                    if (cap.hasEffect()) cap.applyEffect(player, false);
+                    if (cap.hasEffect()) cap.applyEffect(player, addItems);
                     else cap.applyEffect(player, true);
                     MinecraftForge.EVENT_BUS.post(new PickClassEvent.Post(player, event.getDCClass(), true));
                     ClassesLogger.logInfo("Successfully ran command to add " + player + " to class " + clazz);
